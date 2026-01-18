@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         home: LandingPage(),
         theme: ThemeData(
           // Base colors
-          scaffoldBackgroundColor: const Color(0xFFFAF8F5), // --background
+          scaffoldBackgroundColor: const Color(0xFFF9F9EE), // --background
           primaryColor: const Color(0xFF5D4037), // --primary
           // Color scheme
           colorScheme: ColorScheme.light(
