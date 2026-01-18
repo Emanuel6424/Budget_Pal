@@ -6,6 +6,9 @@ import '../models/person.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../util/endpoints.dart';
+import '../widgets/login_widget.dart';
+import '../widgets/signup_widget.dart';
+import '../widgets/login_signup_toggle_widget.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -16,11 +19,15 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   bool isLogin = true;
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
   void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -92,124 +99,32 @@ class _LandingPageState extends State<LandingPage> {
                         const SizedBox(height: 24),
 
                         // Login/Sign Up Toggle
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.black, width: 2),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isLogin = true;
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isLogin
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.onPrimary
-                                          : Colors.grey,
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Login",
-                                        style: TextStyle(
-                                          color: isLogin
-                                              ? Colors.black
-                                              : Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      isLogin = false;
-                                    });
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: !isLogin
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.onPrimary
-                                          : Colors.grey,
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Sign Up",
-                                        style: TextStyle(
-                                          color: !isLogin
-                                              ? Colors.black
-                                              : Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        LoginSignUpToggle(
+                          isLogin: isLogin,
+                          onToggle: (bool loginSelected) {
+                            setState(() {
+                              isLogin = loginSelected;
+                            });
+                          },
                         ),
                         const SizedBox(height: 24),
 
-                        // Email Field
-                        Text(
-                          "Email",
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            hintText: "you@example.com",
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
+                        // Login
+                        if (isLogin == true)
+                          LoginWidget(
+                            emailController: _emailController,
+                            passwordController: _passwordController,
                           ),
-                        ),
-                        const SizedBox(height: 16),
 
-                        // Password Field
-                        Text(
-                          "Password",
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.w500),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            hintText: "••••••••",
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
+                        if (isLogin == false)
+                          SignUpWidget(
+                            firstNameController: _firstNameController,
+                            lastNameController: _lastNameController,
+                            emailController: _emailController,
+                            passwordController: _passwordController,
                           ),
-                        ),
-                        const SizedBox(height: 24),
+
+                        // Sign Up
 
                         // Login/Sign Up Button
                         SizedBox(
