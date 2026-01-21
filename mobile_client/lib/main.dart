@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/user_provider.dart';
-import 'pages/landing_page.dart';
+import 'pages/login_sign_up_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: "BudgetPal",
         debugShowCheckedModeBanner: false,
-        home: LandingPage(),
+        home: LoginSignUpPage(),
         theme: ThemeData(
           // Base colors
           scaffoldBackgroundColor: const Color(0xFFF9F9EE), // --background

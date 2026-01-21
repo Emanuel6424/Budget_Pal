@@ -10,14 +10,14 @@ import '../widgets/login_widget.dart';
 import '../widgets/signup_widget.dart';
 import '../widgets/login_signup_toggle_widget.dart';
 
-class LandingPage extends StatefulWidget {
-  const LandingPage({super.key});
+class LoginSignUpPage extends StatefulWidget {
+  const LoginSignUpPage({super.key});
 
   @override
-  State<LandingPage> createState() => _LandingPageState();
+  State<LoginSignUpPage> createState() => _LoginSignUpPageState();
 }
 
-class _LandingPageState extends State<LandingPage> {
+class _LoginSignUpPageState extends State<LoginSignUpPage> {
   bool isLogin = true;
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
