@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'main_page.dart';
-import 'package:provider/provider.dart';
-import '../models/person.dart';
-
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../util/endpoints.dart';
 import '../widgets/login_widget.dart';
 import '../widgets/signup_widget.dart';
 import '../widgets/login_signup_toggle_widget.dart';
+import '../util/https_methods.dart';
+import 'home_page.dart';
 
 class LoginSignUpPage extends StatefulWidget {
   const LoginSignUpPage({super.key});
@@ -130,10 +125,36 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              print("${isLogin ? 'Login' : 'Sign Up'} pressed");
-                              print("Email: ${_emailController.text}");
-                              print("Password: ${_passwordController.text}");
+                            onPressed: () async {
+                              bool success = isLogin
+                                  ? await HttpsMethods().loginUser(
+                                      _emailController.text,
+                                      _passwordController.text,
+                                      context,
+                                    )
+                                  : await HttpsMethods().signUpUser(
+                                      _firstNameController.text,
+                                      _lastNameController.text,
+                                      _emailController.text,
+                                      _passwordController.text,
+                                      context,
+                                    );
+                              if (success) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => LandingPage(),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Login failed. Please try again.',
+                                    ),
+                                  ),
+                                );
+                              }
                               // Add your authentication logic here
                             },
                             style: ElevatedButton.styleFrom(
