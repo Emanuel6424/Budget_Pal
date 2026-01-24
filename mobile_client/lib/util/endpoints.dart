@@ -10,27 +10,15 @@ class Endpoints {
     }
   }
 
-  static String getAccountUrl(String email) {
-    return '${getBaseUrl()}/account/get/email/$email';
+  static String createUserUrl() {
+    return '${getBaseUrl()}/user/new';
   }
 
-  static String getTasksUrl(int accountId) {
-    return '${getBaseUrl()}/account/get/$accountId/tasks';
+  static String loginUserUrl() {
+    return '${getBaseUrl()}/user/post/login';
   }
 
-  static String createTaskUrl() {
-    return '${getBaseUrl()}/account/task/new';
-  }
-
-  static String updateTaskUrl(int accountId, int taskId) {
-    return '${getBaseUrl()}/account/$accountId/task/put/$taskId';
-  }
-
-  static String deleteTaskUrl(int accountId, int taskId) {
-    return '${getBaseUrl()}/account/$accountId/task/delete/$taskId';
-  }
-
-  static String updatePreferencesUrl(int accountId) {
-    return '${getBaseUrl()}/account/put/$accountId/preferences';
+  static String getUserByEmailUrl(String email) {
+    return '${getBaseUrl()}/user/get/email/$email';
   }
 }

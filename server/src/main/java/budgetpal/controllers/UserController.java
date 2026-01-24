@@ -38,6 +38,11 @@ public class UserController {
             LocalDateTime updatedAt) {
     }
 
+    public static record LoginRequest(
+            String email,
+            String password) {
+    }
+
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -74,16 +79,37 @@ public class UserController {
     }
 
     @GetMapping(value = "/get/email/{email}")
-    public ResponseEntity<UserResponse> getUserByEmail (@PathVariable String email){
-        try{
+    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
+        try {
             if (email == null)
                 throw new IllegalArgumentException("Missing email input");
-            
-            User user = userService.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
+
+            User user = userService.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found: " + email));
 
             return ResponseEntity.ok(userService.toUserReponseBuilder(user));
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+    @PostMapping(value = "/post/login")
+    public ResponseEntity<UserResponse> loginUser(@RequestBody LoginRequest request) {
+        try {
+            if (request.email() == null || request.password() == null)
+                throw new IllegalArgumentException("Missing email or password");
+
+            User user = userService.findByEmail(request.email())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            if (request.password().equals(user.getPassword()))
+                return ResponseEntity.ok(userService.toUserReponseBuilder(user));
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
