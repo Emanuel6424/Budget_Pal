@@ -1,3 +1,4 @@
+import 'package:budget_pal/pages/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/user_provider.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
         title: "BudgetPal",
         debugShowCheckedModeBanner: false,
         // home: LoginSignUpPage(),
-        home: LandingPage(),
+        home: MainPage(),
         theme: ThemeData(
           // Base colors
           scaffoldBackgroundColor: const Color(0xFFF9F9EE), // --background

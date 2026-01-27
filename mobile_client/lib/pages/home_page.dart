@@ -16,24 +16,38 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AccountWidget(
-                accountNumber: "12345678",
-                name: "Main Checkings",
-                type: "Checking",
-                balance: 14000.00,
-              ),
-              AccountWidget(
-                accountNumber: "12345678",
-                name: "Main Checkings",
-                type: "Checking",
-                balance: 14000.00,
-              ),
-            ],
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AccountWidget(
+                  accountNumber: "12345678",
+                  name: "Main Checkings",
+                  type: "Checking",
+                  balance: 14000.00,
+                ),
+                AccountWidget(
+                  accountNumber: "12345678",
+                  name: "Main Savings",
+                  type: "Savings",
+                  balance: 14000.00,
+                ),
+                AccountWidget(
+                  accountNumber: "12345678",
+                  name: "Main Retirement",
+                  type: "Retirement",
+                  balance: 14000.00,
+                ),
+                AccountWidget(
+                  accountNumber: "12345678",
+                  name: "Main Credit Card",
+                  type: "Credit Card",
+                  balance: 14000.00,
+                ),
+              ],
+            ),
           ),
         ),
       ),
