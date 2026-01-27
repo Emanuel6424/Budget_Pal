@@ -1,9 +1,6 @@
-// import 'package:aspires/Models/Person.dart';
-// import 'package:aspires/pages/Tasks/task_list_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/account_widget.dart';
 
-// ignore: must_be_immutable
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
 
