@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <!--  First change set will go here  -->
+    <changeSet id="2026-01-26-19-44" author="Emanuel Sanchez">
+
+
+        <createTable tableName="accounts">
+            <column name="id" type="INTEGER" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="user_id" type="INTEGER">
+                <constraints nullable="false" references="users(id)" foreignKeyName="FK_account_users"/>
+            </column>
+            <column name="name" type="varchar(255)" />
+            <column name="type" type="varchar(255)" />
+            <column name="account_number" type="varchar(255)" />
+            <column name="balance" type="decimal(19,2)" />
+            <column name="is_active" type="boolean"/>
+            <column name="created_at" type="Timestamp" />
+            <column name="updated_at" type="Timestamp" />
+        </createTable>
+
+
+    </changeSet>
+</databaseChangeLog>
