@@ -15,6 +15,12 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Budget Pal",
+          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -22,6 +28,30 @@ class _LandingPageState extends State<LandingPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Accounts",
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text("Total Balance: ", style: TextStyle(fontSize: 15)),
+                      ],
+                    ),
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: Text("Add Account"),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24),
+
                 AccountWidget(
                   accountNumber: "12345678",
                   name: "Main Checkings",

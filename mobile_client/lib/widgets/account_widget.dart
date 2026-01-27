@@ -33,47 +33,57 @@ class AccountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: EdgeInsets.all(40.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Icon(accountTypeIcons[type], size: 30, color: Colors.black),
-                Container(
-                  padding: EdgeInsets.all(12), // Space around icon
-                  decoration: BoxDecoration(
-                    color: accountTypeHighlight[type], // Light background
-                    borderRadius: BorderRadius.circular(10), // Rounded corners
+      child: InkWell(
+        onDoubleTap: () {
+          print("You have tapped your $type Account");
+        },
+        child: Padding(
+          padding: EdgeInsets.all(40.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Icon(accountTypeIcons[type], size: 30, color: Colors.black),
+                  Container(
+                    padding: EdgeInsets.all(12), // Space around icon
+                    decoration: BoxDecoration(
+                      color: accountTypeHighlight[type], // Light background
+                      borderRadius: BorderRadius.circular(
+                        10,
+                      ), // Rounded corners
+                    ),
+                    child: Icon(
+                      accountTypeIcons[type],
+                      size: 28,
+                      color: Colors.black,
+                    ),
                   ),
-                  child: Icon(
-                    accountTypeIcons[type],
-                    size: 28,
-                    color: Colors.black,
-                  ),
-                ),
-                Text(accountNumber),
-              ],
-            ),
+                  Text(accountNumber),
+                ],
+              ),
 
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  title: Text(
-                    name,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(type + " Account"),
+                  ),
+                  Text(
+                    currencyFormat.format(balance),
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  subtitle: Text(type + " Account"),
-                ),
-                Text(
-                  currencyFormat.format(balance),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
