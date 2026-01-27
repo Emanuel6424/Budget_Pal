@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'home_page.dart';
 // Page Imports for the bottom navi bar
 
 class MainPage extends StatefulWidget {
@@ -14,6 +14,7 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> pages = [
     // Page Widgets go here from imports
+    LandingPage(),
   ];
 
   @override
@@ -28,14 +29,17 @@ class _MainPageState extends State<MainPage> {
           });
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: "Calendar",
+            icon: Icon(Icons.account_balance),
+            label: "Accounts",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assistant),
-            label: "AI Assistant",
+            icon: Icon(Icons.receipt),
+            label: "Transactions",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.track_changes),
+            label: "Budget",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

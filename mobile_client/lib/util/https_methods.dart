@@ -61,11 +61,9 @@ class HttpsMethods {
         // TODO: Parse response, create Person object, store in Provider, navigate
       } else if (response.statusCode == 401) {
         throw Exception("User not found or invalid credentials");
-        return false;
         // TODO: Show error to user
       } else {
         throw Exception('Failed to login: ${response.body}');
-        return false;
       }
     } catch (e) {
       print("Error: $e");
