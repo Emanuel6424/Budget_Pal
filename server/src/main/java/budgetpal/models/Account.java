@@ -33,6 +33,9 @@ public class Account {
 
     private String type;
 
+    @Column(name = "account_number")
+    private String accountNumber;
+    
     private double balance;
 
     @Column(name = "is_active")
@@ -50,9 +53,10 @@ public class Account {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public Account(String name, String type, double balance, boolean isActive, User user){
+    public Account(String name, String type, String accountNumber, double balance, User user){
         this.name = name;
         this.type = type;
+        this.accountNumber = accountNumber;
         this.balance = balance;
         this.isActive = true;
         this.user = user;

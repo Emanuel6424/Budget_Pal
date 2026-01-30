@@ -28,6 +28,10 @@ public class AccountService {
         return accountRepository.findById(id);
     }
 
+    public Optional<Account> findByAccountNumber (String accountNumber){
+        return accountRepository.findByAccountNumber(accountNumber);
+    }
+
     public List<Account> finalAll(){
         List<Account> accounts = new ArrayList<>();
         accountRepository.findAll().forEach((a) -> accounts.add(a));
@@ -39,6 +43,7 @@ public class AccountService {
             a.getId(),
             a.getName(),
             a.getType(),
+            a.getAccountNumber(),
             a.getBalance(),
             a.isActive(),
             a.getUser(),
