@@ -12,43 +12,42 @@ import budgetpal.repositories.AccountRepository;
 public class AccountService {
     private final AccountRepository accountRepository;
 
-    public AccountService (AccountRepository accountRepository){
+    public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
-    public Account save (Account a){
+    public Account save(Account a) {
         return accountRepository.save(a);
     }
 
-    public void delete (Account a){
+    public void delete(Account a) {
         accountRepository.delete(a);
     }
 
-    public Optional<Account> findById (Integer id){
+    public Optional<Account> findById(Integer id) {
         return accountRepository.findById(id);
     }
 
-    public Optional<Account> findByAccountNumber (String accountNumber){
+    public Optional<Account> findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber);
     }
 
-    public List<Account> finalAll(){
+    public List<Account> finalAll() {
         List<Account> accounts = new ArrayList<>();
         accountRepository.findAll().forEach((a) -> accounts.add(a));
         return accounts;
     }
 
-    public AccountResponse toAccountResponseBuilder(Account a){
-        return new AccountResponse (
-            a.getId(),
-            a.getName(),
-            a.getType(),
-            a.getAccountNumber(),
-            a.getBalance(),
-            a.isActive(),
-            a.getUser(),
-            a.getCreatedAt(),
-            a.getUpdatedAt()
-        );
+    public AccountResponse toAccountResponseBuilder(Account a) {
+        return new AccountResponse(
+                a.getId(),
+                a.getName(),
+                a.getType(),
+                a.getAccountNumber(),
+                a.getBalance(),
+                a.isActive(),
+                a.getUser().getId(),
+                a.getCreatedAt(),
+                a.getUpdatedAt());
     }
 }
