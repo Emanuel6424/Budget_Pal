@@ -1,16 +1,19 @@
 import 'dart:convert';
 
+import 'package:budget_pal/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'endpoints.dart';
 
 class HttpsMethods {
-  Future<bool> signUpUser(
+  final headers = {'Content-Type': 'application/json'};
+
+  Future<User?> signUpUser(
     String firstName,
     String lastName,
     String email,
     String password,
-    BuildContext context, // Add this - need for Provider & navigation
   ) async {
     var url = Uri.parse(Endpoints.createUserUrl());
 
@@ -21,42 +24,36 @@ class HttpsMethods {
       'password': password,
     });
 
-    final headers = {'Content-Type': 'application/json'};
-
     try {
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 201) {
         print("User created successfully!");
+        var userJson = jsonDecode(response.body);
+        return User.fromJson(userJson);
         // TODO: Parse response and store in Provider
-        return true; // Success
       } else {
         print('Failed to create user: ${response.body}');
-        return false; // Failure
+        return null; // Failure
       }
     } catch (e) {
       print("Error: $e");
-      return false; // Failure
+      return null; // Failure
     }
   }
 
-  Future<bool> loginUser(
-    String email,
-    String password,
-    BuildContext context, // Add this
-  ) async {
+  Future<User?> loginUser(String email, String password) async {
     var url = Uri.parse(Endpoints.loginUserUrl());
 
     final body = jsonEncode({'email': email, 'password': password});
-
-    final headers = {'Content-Type': 'application/json'};
 
     try {
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
         print("Login successful!"); // Fixed message
-        return true;
+        var userJson = jsonDecode(response.body);
+        return User.fromJson(userJson);
 
         // TODO: Parse response, create Person object, store in Provider, navigate
       } else if (response.statusCode == 401) {
@@ -67,7 +64,56 @@ class HttpsMethods {
       }
     } catch (e) {
       print("Error: $e");
-      return false;
+      return null;
+    }
+  }
+
+  Future<User?> getUserByEmail(String email) async {
+    var url = Uri.parse(Endpoints.getUserByEmailUrl(email));
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        var userJson = jsonDecode(response.body);
+        return User.fromJson(userJson);
+      } else {
+        print('Failed to fetch user: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print("Error: $e");
+      return null;
+    }
+  }
+
+  Future<void> createAccount(
+    String name,
+    String type,
+    String accountNumber,
+    double balance,
+    int userId,
+  ) async {
+    var url = Uri.parse(Endpoints.createAccountUrl());
+
+    final body = jsonEncode({
+      'name': name,
+      'type': type,
+      'accountNumber': accountNumber,
+      'balance': balance,
+      'userId': userId,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 201) {
+        print("User created successfully!");
+      } else {
+        print('Failed to create user: ${response.body}');
+      }
+    } catch (e) {
+      print("Error: $e");
     }
   }
 }

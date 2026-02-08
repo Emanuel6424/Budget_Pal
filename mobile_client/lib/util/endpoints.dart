@@ -21,4 +21,12 @@ class Endpoints {
   static String getUserByEmailUrl(String email) {
     return '${getBaseUrl()}/user/get/email/$email';
   }
+
+  static String createAccountUrl() {
+    return '${getBaseUrl()}/account/new';
+  }
+
+  static String getAccountUrl(int accountId) {
+    return '${getBaseUrl()}/account/$accountId';
+  }
 }

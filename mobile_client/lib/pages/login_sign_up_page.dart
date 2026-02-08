@@ -1,7 +1,10 @@
+import 'package:budget_pal/models/user.dart';
+import 'package:budget_pal/providers/user_provider.dart';
 import 'package:flutter/material.dart';
-import '../widgets/login_widget.dart';
-import '../widgets/signup_widget.dart';
-import '../widgets/login_signup_toggle_widget.dart';
+import 'package:provider/provider.dart';
+import '../widgets/login/login_widget.dart';
+import '../widgets/login/signup_widget.dart';
+import '../widgets/login/login_signup_toggle_widget.dart';
 import '../util/https_methods.dart';
 import 'main_page.dart';
 
@@ -126,21 +129,27 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () async {
-                              bool success = isLogin
+                              User? user = isLogin
                                   ? await HttpsMethods().loginUser(
                                       _emailController.text,
                                       _passwordController.text,
-                                      context,
                                     )
                                   : await HttpsMethods().signUpUser(
                                       _firstNameController.text,
                                       _lastNameController.text,
                                       _emailController.text,
                                       _passwordController.text,
-                                      context,
                                     );
-                              if (success) {
-                                Navigator.push(
+                              if (user != null) {
+                                // Success! Store user in Provider
+                                Provider.of<UserProvider>(
+                                  context,
+                                  listen: false,
+                                ).setUser(user);
+
+                                // Navigate to main page
+                                Navigator.pushReplacement(
+                                  // Use pushReplacement so they can't go back to login
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => MainPage(),
@@ -150,7 +159,9 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      'Login failed. Please try again.',
+                                      isLogin
+                                          ? 'Login failed. Please try again.'
+                                          : 'Sign up failed. Please try again.',
                                     ),
                                   ),
                                 );

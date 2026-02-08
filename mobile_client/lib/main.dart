@@ -1,4 +1,3 @@
-import 'package:budget_pal/pages/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/user_provider.dart';

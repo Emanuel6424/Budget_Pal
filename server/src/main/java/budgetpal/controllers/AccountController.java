@@ -79,7 +79,7 @@ public class AccountController {
         }
     }
 
-   @GetMapping(value = "/get/accountId/{accountId}")
+   @GetMapping(value = "/get/account/{accountId}")
     public ResponseEntity<AccountResponse> getAccountById(@PathVariable Integer accountId) {
         try {
             Account account = accountService.findById(accountId)
