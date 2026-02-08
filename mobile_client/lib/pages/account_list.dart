@@ -7,14 +7,14 @@ import '../util/https_methods.dart';
 import 'package:provider/provider.dart';
 import "../../providers/user_provider.dart";
 
-class LandingPage extends StatefulWidget {
-  const LandingPage({super.key});
+class AccountListPage extends StatefulWidget {
+  const AccountListPage({super.key});
 
   @override
-  State<LandingPage> createState() => _LandingPageState();
+  State<AccountListPage> createState() => _AccountListPageState();
 }
 
-class _LandingPageState extends State<LandingPage> {
+class _AccountListPageState extends State<AccountListPage> {
   final currencyFormat = NumberFormat.currency(locale: "en_US", symbol: '\$');
 
   @override

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'accounts_page.dart';
+import 'account_list_page.dart';
 // Page Imports for the bottom navi bar
 
 class MainPage extends StatefulWidget {
@@ -14,7 +14,7 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> pages = [
     // Page Widgets go here from imports
-    LandingPage(),
+    AccountListPage(),
   ];
 
   @override
