@@ -1,12 +1,10 @@
-package budgetpal.services;
+package budgetpal.user;
 
 import java.util.*;
 
 import org.springframework.stereotype.Service;
 
-import budgetpal.controllers.UserController.UserResponse;
-import budgetpal.models.User;
-import budgetpal.repositories.UserRepository;
+import budgetpal.user.UserController.UserResponse;
 
 @Service
 public class UserService {

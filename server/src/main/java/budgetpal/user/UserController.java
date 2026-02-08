@@ -1,4 +1,4 @@
-package budgetpal.controllers;
+package budgetpal.user;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import budgetpal.models.Account;
-import budgetpal.models.User;
-import budgetpal.services.UserService;
+import budgetpal.account.Account;
 
 @RestController
 @RequestMapping("/api/user")

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <!--  First change set will go here  -->
+    <changeSet id="2026-02-08-15-21" author="Emanuel Sanchez">
+
+        <!-- Create categories table first -->
+        <createTable tableName="categories">
+            <column name="id" type="INTEGER" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(100)"/>
+            <column name="icon" type="varchar(50)"/>
+            <column name="color" type="varchar(7)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <!-- Seed categories -->
+        <insert tableName="categories">
+            <column name="name" value="Groceries"/>
+            <column name="icon" value="shopping-cart"/>
+            <column name="color" value="#4CAF50"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Dining"/>
+            <column name="icon" value="restaurant"/>
+            <column name="color" value="#FF9800"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Transportation"/>
+            <column name="icon" value="directions-car"/>
+            <column name="color" value="#2196F3"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Entertainment"/>
+            <column name="icon" value="movie"/>
+            <column name="color" value="#E91E63"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Utilities"/>
+            <column name="icon" value="lightbulb"/>
+            <column name="color" value="#FFC107"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Healthcare"/>
+            <column name="icon" value="medical-services"/>
+            <column name="color" value="#F44336"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Shopping"/>
+            <column name="icon" value="shopping-bag"/>
+            <column name="color" value="#9C27B0"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Housing"/>
+            <column name="icon" value="home"/>
+            <column name="color" value="#795548"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Income"/>
+            <column name="icon" value="attach-money"/>
+            <column name="color" value="#4CAF50"/>
+        </insert>
+        <insert tableName="categories">
+            <column name="name" value="Other"/>
+            <column name="icon" value="more-horiz"/>
+            <column name="color" value="#9E9E9E"/>
+        </insert>
+
+        <!-- Create transactions table -->
+        <createTable tableName="transactions">
+            <column name="id" type="INTEGER" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="INTEGER">
+                <constraints nullable="false" references="users(id)" foreignKeyName="FK_transactions_users"/>
+            </column>
+            <column name="account_id" type="INTEGER">
+                <constraints nullable="false" references="accounts(id)" foreignKeyName="FK_transactions_accounts"/>
+            </column>
+            <column name="date" type="Date"/>
+            <column name="description" type="varchar(255)"/>
+            <column name="merchant" type="varchar(255)"/>
+            <column name="amount" type="decimal(19,2)"/>
+            <column name="type" type="varchar(255)"/>
+            <column name="category_id" type="INTEGER">
+                <constraints nullable="false" references="categories(id)" foreignKeyName="FK_transactions_categories"/>
+            </column>
+            <column name="created_at" type="Timestamp"/>
+            <column name="updated_at" type="Timestamp"/>
+        </createTable>
+
+        <!-- Create budgets table -->
+        <createTable tableName="budgets">
+            <column name="id" type="INTEGER" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="INTEGER">
+                <constraints nullable="false" references="users(id)" foreignKeyName="FK_budgets_users"/>
+            </column>
+            <column name="name" type="varchar(100)"/>
+            <column name="category_id" type="INTEGER">
+                <constraints nullable="false" references="categories(id)" foreignKeyName="FK_budgets_categories"/>
+            </column>
+            <column name="limit_amount" type="decimal(19,2)"/>
+            <column name="period" type="varchar(20)"/>
+            <column name="start_date" type="Date"/>
+            <column name="end_date" type="Date"/>
+            <column name="is_active" type="boolean"/>
+            <column name="created_at" type="Timestamp"/>
+            <column name="updated_at" type="Timestamp"/>
+        </createTable>
+
+
+
+    </changeSet>
+</databaseChangeLog>

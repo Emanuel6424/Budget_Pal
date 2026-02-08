@@ -1,4 +1,4 @@
-package budgetpal.controllers;
+package budgetpal.account;
 
 import java.time.LocalDateTime;
 
@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import budgetpal.models.Account;
-import budgetpal.models.User;
-import budgetpal.services.AccountService;
-import budgetpal.services.UserService;
+import budgetpal.user.User;
+import budgetpal.user.UserService;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 

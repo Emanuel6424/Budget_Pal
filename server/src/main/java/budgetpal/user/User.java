@@ -1,4 +1,4 @@
-package budgetpal.models;
+package budgetpal.user;
 
 import java.time.LocalDateTime;
 
@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import budgetpal.account.Account;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

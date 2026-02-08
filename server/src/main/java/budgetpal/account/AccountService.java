@@ -1,12 +1,10 @@
-package budgetpal.services;
+package budgetpal.account;
 
 import java.util.*;
 
 import org.springframework.stereotype.Service;
 
-import budgetpal.controllers.AccountController.AccountResponse;
-import budgetpal.models.Account;
-import budgetpal.repositories.AccountRepository;
+import budgetpal.account.AccountController.AccountResponse;
 
 @Service
 public class AccountService {

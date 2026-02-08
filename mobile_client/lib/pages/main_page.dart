@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'account_list_page.dart';
+import 'account_list.dart';
 // Page Imports for the bottom navi bar
 
 class MainPage extends StatefulWidget {
