@@ -1,17 +1,19 @@
 package budgetpal.transaction;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Locale.Category;
-
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import budgetpal.account.Account;
+import budgetpal.category.Category;
 import budgetpal.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,7 +42,7 @@ public class Transaction {
     @JsonBackReference(value = "transactions-accounts")
     private Account account;
 
-    private LocalDateTime date;
+    private LocalDate date;
 
     private String description;
 
@@ -48,9 +50,9 @@ public class Transaction {
 
     private double amount;
 
-    private String type;
+    @Enumerated(EnumType.STRING)  // <-- Add this annotation
+    private TransactionType type;  // <-- Change from String to TransactionType
 
-    // category field comes here
     @ManyToOne
     @JoinColumn(name = "category_id")
     @JsonBackReference(value = "transactions-categories")
@@ -63,9 +65,8 @@ public class Transaction {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public Transaction(User user, Account account, LocalDateTime date, String description, String merchant,
-            double amount, String type, Category category) {
-
+    public Transaction(User user, Account account, LocalDate date, String description, String merchant,
+            double amount, TransactionType type, budgetpal.category.Category category) {
         this.user = user;
         this.account = account;
         this.date = date;
@@ -75,5 +76,5 @@ public class Transaction {
         this.type = type;
         this.category = category;
     }
-
 }
+
