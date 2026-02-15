@@ -1,6 +1,4 @@
 import 'package:budget_pal/widgets/accounts/add_account_dialog.dart';
-import 'package:budget_pal/widgets/transactions/account_header_widget.dart';
-import 'package:budget_pal/widgets/transactions/transaction_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../widgets/accounts/account_widget.dart';
@@ -147,6 +145,7 @@ class _AccountListPageState extends State<AccountListPage> {
                     ...user.accounts
                         .map(
                           (account) => AccountWidget(
+                            accountId: account.id,
                             name: account.name,
                             type: account.type,
                             accountNumber: account.accountNumber,
@@ -154,27 +153,6 @@ class _AccountListPageState extends State<AccountListPage> {
                           ),
                         )
                         .toList(),
-
-                    AccountHeaderWidget(
-                      name: "Main Checkings",
-                      type: "Checking",
-                      accountNumber: "12345678",
-                      balance: 12000.00,
-                    ),
-                    TransactionWidget(
-                      date: DateTime(2017, 9, 7),
-                      description: "Walmart Shopping",
-                      category: "Greoceries",
-                      amount: 27.00,
-                      type: "DEBIT",
-                    ),
-                    TransactionWidget(
-                      date: DateTime(2017, 9, 7),
-                      description: "Walmart Shopping",
-                      category: "Greoceries",
-                      amount: 27.00,
-                      type: "CREDIT",
-                    ),
                   ],
                 ),
               ),

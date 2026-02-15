@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:budget_pal/models/transaction.dart';
 import 'package:budget_pal/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'endpoints.dart';
@@ -112,6 +113,36 @@ class HttpsMethods {
       }
     } catch (e) {
       print("Error: $e");
+    }
+  }
+
+  Future<List<Transaction>> getTransactions(int accountId) async {
+    // Type it properly
+    try {
+      var url = Uri.parse(Endpoints.getTransactionsUrl(accountId));
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        // Should be 200 for GET, not 201
+        final List<dynamic> fetchedTransactions = jsonDecode(
+          utf8.decode(response.bodyBytes),
+        );
+
+        // Map to Transaction objects
+        List<Transaction> transactions = fetchedTransactions
+            .map((json) => Transaction.fromJson(json))
+            .toList();
+
+        // Sort by date (newest first is more common for transactions)
+        transactions.sort((a, b) => b.date.compareTo(a.date));
+
+        return transactions;
+      } else {
+        print("Failed to fetch transactions: ${response.statusCode}");
+        return [];
+      }
+    } catch (e) {
+      throw Exception("Error fetching transactions: $e");
     }
   }
 }

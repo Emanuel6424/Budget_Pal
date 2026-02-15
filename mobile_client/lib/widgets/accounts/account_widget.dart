@@ -1,8 +1,10 @@
+import 'package:budget_pal/pages/account_details.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
 class AccountWidget extends StatelessWidget {
+  final int accountId;
   final String name;
   final String type;
   final String accountNumber;
@@ -11,6 +13,7 @@ class AccountWidget extends StatelessWidget {
 
   AccountWidget({
     super.key,
+    required this.accountId,
     required this.name,
     required this.type,
     required this.accountNumber,
@@ -36,7 +39,12 @@ class AccountWidget extends StatelessWidget {
     return Card(
       child: InkWell(
         onDoubleTap: () {
-          print("You have tapped your $type Account");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AccountDetailsPage(accountId: accountId),
+            ),
+          );
         },
         child: Padding(
           padding: EdgeInsets.all(40.0),

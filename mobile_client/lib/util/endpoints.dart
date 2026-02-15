@@ -34,7 +34,7 @@ class Endpoints {
     return '${getBaseUrl()}/transaction/new';
   }
 
-  static String getTransactions(int accountId) {
+  static String getTransactionsUrl(int accountId) {
     return '${getBaseUrl()}/transaction/account/$accountId';
   }
 }
