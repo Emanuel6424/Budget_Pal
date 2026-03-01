@@ -126,11 +126,10 @@ class _AccountDetailsPage extends State<AccountDetailsPage> {
                               return TransactionWidget(
                                 date: transaction.date,
                                 description: transaction.description,
-                                category: CategoryHelper.getCategoryName(
-                                  transaction.categoryId,
-                                ),
+                                categoryId: transaction.categoryId,
                                 amount: transaction.amount,
                                 type: transaction.type,
+                                merchant: transaction.merchant,
                               );
                             }).toList(),
                         ],
