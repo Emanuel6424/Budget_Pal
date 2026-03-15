@@ -9,4 +9,6 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
     List<Transaction> findByAccountId(Integer id);
 
     List<Transaction> findByAccountIdAndDateBetween(Integer accountId, LocalDate startDate, LocalDate endDate);
+
+    List<Transaction> findByUserIdAndCategoryIdAndDateBetween(Integer userId, Integer categoryId, LocalDate statDate, LocalDate endDate);
 }

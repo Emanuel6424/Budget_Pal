@@ -1,5 +1,6 @@
 package budgetpal.budget;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,6 +12,8 @@ import budgetpal.category.Category;
 import budgetpal.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,11 +37,12 @@ public class Budget {
 
     private double limitAmount;
 
-    private String period;
+    @Enumerated(EnumType.STRING)
+    private BudgetPeriod period;
 
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     private boolean isActive;
 
@@ -59,7 +63,7 @@ public class Budget {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public Budget(String name, double limitAmount, String period, LocalDateTime startDate, LocalDateTime endDate,
+    public Budget(String name, double limitAmount, BudgetPeriod period, LocalDate startDate, LocalDate endDate,
             User user, Category category) {
         this.name = name;
         this.limitAmount = limitAmount;
