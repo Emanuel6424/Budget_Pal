@@ -66,7 +66,7 @@ public class Transaction {
     private LocalDateTime updatedAt;
 
     public Transaction(User user, Account account, LocalDate date, String description, String merchant,
-            double amount, TransactionType type, budgetpal.category.Category category) {
+            double amount, TransactionType type, Category category) {
         this.user = user;
         this.account = account;
         this.date = date;
