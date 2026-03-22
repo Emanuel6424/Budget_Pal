@@ -44,6 +44,7 @@ public class UserService {
             u.getLastName(),
             u.getEmail(),
             u.getAccounts(),
+            u.getBudgets(),
             u.getCreatedAt(),
             u.getUpdatedAt()
         );

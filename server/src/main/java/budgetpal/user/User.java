@@ -1,7 +1,6 @@
 package budgetpal.user;
 
 import java.time.LocalDateTime;
-
 import java.util.*;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import budgetpal.account.Account;
+import budgetpal.budget.Budget;  // Add this import
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,7 +20,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Entity
 @Data
@@ -52,6 +51,11 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonManagedReference(value = "accounts-users")
     private List<Account> accounts = new ArrayList<>();
+
+    // Add this
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference(value = "budgets-users")
+    private List<Budget> budgets = new ArrayList<>();
 
     public User(String firstName, String lastName, String email, String password){
         this.firstName = firstName;

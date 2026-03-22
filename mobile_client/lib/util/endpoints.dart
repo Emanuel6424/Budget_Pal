@@ -37,4 +37,9 @@ class Endpoints {
   static String getTransactionsUrl(int accountId) {
     return '${getBaseUrl()}/transaction/account/$accountId';
   }
+
+  // In util/endpoints.dart
+  static String getBudgetStatusUrl(int budgetId) {
+    return '${getBaseUrl()}/budget/$budgetId/status';
+  }
 }

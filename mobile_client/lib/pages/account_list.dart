@@ -45,12 +45,7 @@ class _AccountListPageState extends State<AccountListPage> {
         }
 
         return Scaffold(
-          appBar: AppBar(
-            title: Text(
-              "Budget Pal",
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-          ),
+          appBar: AppBar(title: Text("Budget Pal")),
           body: Center(
             child: SingleChildScrollView(
               child: Padding(

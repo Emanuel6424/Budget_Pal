@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:budget_pal/models/budget_status.dart';
 import 'package:budget_pal/models/transaction.dart';
 import 'package:budget_pal/models/user.dart';
 import 'package:http/http.dart' as http;
@@ -143,6 +144,28 @@ class HttpsMethods {
       }
     } catch (e) {
       throw Exception("Error fetching transactions: $e");
+    }
+  }
+
+  // In util/https_methods.dart
+  Future<BudgetStatus?> getBudgetStatus(int budgetId) async {
+    try {
+      var url = Uri.parse(Endpoints.getBudgetStatusUrl(budgetId));
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(
+          utf8.decode(response.bodyBytes),
+        );
+        return BudgetStatus.fromJson(data);
+      } else {
+        throw Exception(
+          "Failed to fetch budget status: ${response.statusCode}",
+        );
+      }
+    } catch (e) {
+      print("Error fetching budget status: $e");
+      return null;
     }
   }
 }

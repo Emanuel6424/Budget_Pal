@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import budgetpal.account.Account;
+import budgetpal.budget.Budget;
 
 @RestController
 @RequestMapping("/api/user")
@@ -34,6 +35,7 @@ public class UserController {
             String lastName,
             String email,
             List<Account> accounts,
+            List<Budget> budgets,
             LocalDateTime createdAt,
             LocalDateTime updatedAt) {
     }

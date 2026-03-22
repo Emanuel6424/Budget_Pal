@@ -1,3 +1,4 @@
+import 'package:budget_pal/pages/budgets_list.dart';
 import 'package:flutter/material.dart';
 import 'account_list.dart';
 // Page Imports for the bottom navi bar
@@ -15,6 +16,9 @@ class _MainPageState extends State<MainPage> {
   final List<Widget> pages = [
     // Page Widgets go here from imports
     AccountListPage(),
+    AccountListPage(),
+    BudgetListPage(),
+    BudgetListPage(),
   ];
 
   @override

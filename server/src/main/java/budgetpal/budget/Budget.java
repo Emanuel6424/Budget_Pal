@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import budgetpal.category.Category;
 import budgetpal.user.User;
@@ -53,7 +54,7 @@ public class Budget {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    @JsonBackReference(value = "transactions-categories")
+    @JsonBackReference(value = "budgets-categories")  // Changed this
     private Category category;
 
     @CreationTimestamp
@@ -62,6 +63,12 @@ public class Budget {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    // Add this getter to expose categoryId in JSON
+    @JsonProperty("categoryId")
+    public Integer getCategoryId() {
+        return category != null ? category.getId() : null;
+    }
 
     public Budget(String name, double limitAmount, BudgetPeriod period, LocalDate startDate, LocalDate endDate,
             User user, Category category) {
