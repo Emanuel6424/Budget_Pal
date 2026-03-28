@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import budgetpal.account.Account;
 import budgetpal.budget.Budget;  // Add this import
+import budgetpal.transaction.Transaction;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -56,6 +57,10 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonManagedReference(value = "budgets-users")
     private List<Budget> budgets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    @JsonManagedReference(value = "transactions-users")
+    private List<Transaction> transactions = new ArrayList<>();
 
     public User(String firstName, String lastName, String email, String password){
         this.firstName = firstName;

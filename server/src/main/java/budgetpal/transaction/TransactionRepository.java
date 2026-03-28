@@ -10,5 +10,9 @@ public interface TransactionRepository extends CrudRepository<Transaction, Integ
 
     List<Transaction> findByAccountIdAndDateBetween(Integer accountId, LocalDate startDate, LocalDate endDate);
 
-    List<Transaction> findByUserIdAndCategoryIdAndDateBetween(Integer userId, Integer categoryId, LocalDate statDate, LocalDate endDate);
+    List<Transaction> findByUserIdAndCategoryIdAndDateBetween(Integer userId, Integer categoryId, LocalDate statDate,
+            LocalDate endDate);
+
+    List<Transaction> findByUserIdAndDateBetween(Integer userId, LocalDate currentDate1,
+            LocalDate currentDate2);
 }

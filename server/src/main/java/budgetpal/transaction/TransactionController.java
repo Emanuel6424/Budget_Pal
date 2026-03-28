@@ -125,4 +125,18 @@ public class TransactionController {
                 return ResponseEntity.ok(responses);
         }
 
+        @GetMapping("/recent/{userId}")
+        public ResponseEntity<List<TransactionResponse>> getRecentTransactions(
+                        @PathVariable Integer userId,
+                        @RequestParam(defaultValue = "month") String period) {
+
+                List<Transaction> transactions = transactionService.getTransactionsByPeriod(userId, period);
+
+                List<TransactionResponse> responses = transactions.stream()
+                                .map(transactionService::toTransactionResponseBuilder)
+                                .toList();
+
+                return ResponseEntity.ok(responses);
+        }
+
 }

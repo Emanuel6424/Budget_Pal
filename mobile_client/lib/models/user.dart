@@ -1,5 +1,6 @@
 import 'package:budget_pal/models/account.dart';
 import 'package:budget_pal/models/budget.dart';
+import 'package:budget_pal/models/transaction.dart';
 
 class User {
   late final int id;
@@ -8,6 +9,7 @@ class User {
   String email;
   List<Account> accounts;
   List<Budget> budgets;
+  List<Transaction> recentTransactions;
 
   User({
     required this.id,
@@ -16,6 +18,7 @@ class User {
     required this.email,
     required this.accounts,
     required this.budgets,
+    required this.recentTransactions,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -29,6 +32,9 @@ class User {
           .toList(),
       budgets: (json['budgets'] as List)
           .map((budgetJson) => Budget.fromJson(budgetJson))
+          .toList(),
+      recentTransactions: (json['recentTransactions'] as List)
+          .map((budgetJson) => Transaction.fromJson(budgetJson))
           .toList(),
     );
     return newUser;

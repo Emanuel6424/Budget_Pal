@@ -48,6 +48,31 @@ public class TransactionService {
         return transactionRepository.findByAccountId(accountId);
     }
 
+    public List<Transaction> getTransactionsByPeriod(Integer userId, String period) {
+    LocalDate today = LocalDate.now();
+    LocalDate startDate;
+    LocalDate endDate = today;
+    
+    switch (period.toLowerCase()) {
+        case "week":
+            startDate = today.minusWeeks(1);
+            break;
+        case "month":
+            startDate = today.withDayOfMonth(1);
+            endDate = today.withDayOfMonth(today.lengthOfMonth());
+            break;
+        case "year":
+            startDate = today.withDayOfYear(1);
+            endDate = today.withDayOfYear(today.lengthOfYear());
+            break;
+        default:
+            startDate = today.withDayOfMonth(1);
+            endDate = today.withDayOfMonth(today.lengthOfMonth());
+    }
+    
+    return transactionRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
+}
+
     public TransactionResponse toTransactionResponseBuilder(Transaction t) {
         return new TransactionResponse(
                 t.getId(),
