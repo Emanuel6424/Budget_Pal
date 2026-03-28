@@ -1,4 +1,4 @@
-import 'package:budget_pal/pages/budgets_list.dart';
+import 'package:budget_pal/pages/budget_list.dart';
 import 'package:flutter/material.dart';
 import 'account_list.dart';
 // Page Imports for the bottom navi bar

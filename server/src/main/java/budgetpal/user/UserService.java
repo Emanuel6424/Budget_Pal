@@ -1,17 +1,22 @@
 package budgetpal.user;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import org.springframework.stereotype.Service;
 
+import budgetpal.budget.Budget;
+import budgetpal.budget.BudgetService;
 import budgetpal.user.UserController.UserResponse;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final BudgetService budgetService;
 
-    public UserService (UserRepository userRepository){
+    public UserService (UserRepository userRepository, BudgetService budgetService){
         this.userRepository = userRepository;
+        this.budgetService = budgetService;
     }
 
     public User save (User u){
@@ -37,6 +42,8 @@ public class UserService {
     }
 
     public UserResponse toUserReponseBuilder(User u){
+       
+        List<Budget> currBudgets = budgetService.getCurrentBudgets(u.getId());
 
         return new UserResponse(
             u.getId(),
@@ -44,7 +51,7 @@ public class UserService {
             u.getLastName(),
             u.getEmail(),
             u.getAccounts(),
-            u.getBudgets(),
+            currBudgets,
             u.getCreatedAt(),
             u.getUpdatedAt()
         );

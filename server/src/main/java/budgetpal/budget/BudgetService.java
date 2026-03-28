@@ -62,6 +62,11 @@ public class BudgetService {
                 budget.getEndDate());
     }
 
+    public List<Budget> getCurrentBudgets(Integer userId){
+        LocalDate today = LocalDate.now();
+        return budgetRepository.findByUserIdAndIsActiveTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqual(userId, today, today);
+    }
+
     public record BudgetStatus(
             Integer id,
             String name,
