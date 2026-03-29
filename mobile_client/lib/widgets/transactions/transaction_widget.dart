@@ -53,15 +53,15 @@ class TransactionWidget extends StatelessWidget {
               Container(
                 padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: type == "DEBIT"
+                  color: type == "EXPENSE"
                       ? const Color.fromARGB(80, 244, 67, 54)
                       : const Color.fromARGB(86, 76, 175, 79),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Icon(
-                  type == "DEBIT" ? Icons.trending_down : Icons.trending_up,
+                  type == "EXPENSE" ? Icons.trending_down : Icons.trending_up,
                   size: 20,
-                  color: type == "DEBIT" ? Colors.red : Colors.green,
+                  color: type == "EXPENSE" ? Colors.red : Colors.green,
                 ),
               ),
 
@@ -92,13 +92,13 @@ class TransactionWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    type == "DEBIT"
+                    type == "EXPENSE"
                         ? "-${currencyFormat.format(amount)}"
                         : "+${currencyFormat.format(amount)}",
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
-                      color: type == "DEBIT" ? Colors.red : Colors.green,
+                      color: type == "EXPENSE" ? Colors.red : Colors.green,
                     ),
                   ),
                   SizedBox(height: 4),

@@ -46,7 +46,7 @@ class _TransactionListPage extends State<TransactionListPage> {
                             ),
                           ),
                           Text(
-                            "Purchase history",
+                            "Purchase History For This Month",
                             style: TextStyle(fontSize: 15),
                           ),
                         ],
