@@ -4,6 +4,7 @@ import 'package:budget_pal/models/budget_status.dart';
 import 'package:budget_pal/models/transaction.dart';
 import 'package:budget_pal/models/user.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'endpoints.dart';
 
 class HttpsMethods {
@@ -144,6 +145,43 @@ class HttpsMethods {
       }
     } catch (e) {
       throw Exception("Error fetching transactions: $e");
+    }
+  }
+
+  // In util/https_methods.dart
+  Future<void> createTransaction(
+    int userId,
+    int accountId,
+    DateTime date,
+    String description,
+    String merchant,
+    double amount,
+    String type,
+    int categoryId,
+  ) async {
+    try {
+      var url = Uri.parse(Endpoints.createTransactionUrl());
+
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "userId": userId,
+          "accountId": accountId,
+          "date": DateFormat('yyyy-MM-dd').format(date),
+          "description": description,
+          "merchant": merchant,
+          "amount": amount,
+          "type": type,
+          "categoryId": categoryId,
+        }),
+      );
+
+      if (response.statusCode != 201) {
+        throw Exception("Failed to create transaction: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error creating transaction: $e");
     }
   }
 

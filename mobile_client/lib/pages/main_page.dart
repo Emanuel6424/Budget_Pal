@@ -46,10 +46,10 @@ class _MainPageState extends State<MainPage> {
             icon: Icon(Icons.track_changes),
             label: "Budget",
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: "Settings",
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.settings),
+          //   label: "Settings",
+          // ),
         ],
       ),
     );

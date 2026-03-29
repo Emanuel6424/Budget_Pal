@@ -1,6 +1,6 @@
 import 'package:budget_pal/models/transaction.dart';
 import 'package:budget_pal/util/https_methods.dart';
-import 'package:budget_pal/widgets/transactions/account_header_widget.dart';
+import 'package:budget_pal/widgets/transactions/add_transaction_dialog.dart'; // Add this
 import 'package:budget_pal/widgets/transactions/transaction_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -46,14 +46,95 @@ class _TransactionListPage extends State<TransactionListPage> {
                             ),
                           ),
                           Text(
-                            "Purchase History For This Month",
+                            "Transactions This Month",
                             style: TextStyle(fontSize: 15),
                           ),
                         ],
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          print("hello");
+                          // Show account selection dialog first if user has multiple accounts
+                          if (user.accounts.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please create an account first'),
+                              ),
+                            );
+                            return;
+                          }
+
+                          // If only one account, use it. Otherwise, let user choose
+                          int accountId = user.accounts.length == 1
+                              ? user.accounts.first.id
+                              : user
+                                    .accounts
+                                    .first
+                                    .id; // For now, default to first account
+
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AddTransactionDialog(
+                                accounts: user
+                                    .accounts, // Pass accounts for selection
+                                onAdd:
+                                    (
+                                      accountId,
+                                      date,
+                                      description,
+                                      merchant,
+                                      amount,
+                                      type,
+                                      categoryId,
+                                    ) async {
+                                      try {
+                                        // Call API to create transaction
+                                        await HttpsMethods().createTransaction(
+                                          user.id,
+                                          accountId,
+                                          date,
+                                          description,
+                                          merchant,
+                                          amount,
+                                          type,
+                                          categoryId,
+                                        );
+
+                                        // Refresh user data
+                                        final updatedUser = await HttpsMethods()
+                                            .getUserByEmail(user.email);
+
+                                        if (updatedUser != null) {
+                                          Provider.of<UserProvider>(
+                                            context,
+                                            listen: false,
+                                          ).setUser(updatedUser);
+
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Transaction added successfully!',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to add transaction: $e',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                              );
+                            },
+                          );
                         },
                         child: Text("+ Transaction"),
                       ),
@@ -90,7 +171,6 @@ class _TransactionListPage extends State<TransactionListPage> {
                           ),
                           SizedBox(height: 10),
 
-                          // Check if transactions exist and display them
                           if (user.recentTransactions.isEmpty)
                             Center(
                               child: Padding(
@@ -126,25 +206,5 @@ class _TransactionListPage extends State<TransactionListPage> {
         );
       },
     );
-  }
-}
-
-// quick fix, this is to be replaced as soon as I implement categories back end
-class CategoryHelper {
-  static const Map<int, String> categoryNames = {
-    1: 'Groceries',
-    2: 'Dining',
-    3: 'Transportation',
-    4: 'Entertainment',
-    5: 'Utilities',
-    6: 'Healthcare',
-    7: 'Shopping',
-    8: 'Housing',
-    9: 'Income',
-    10: 'Other',
-  };
-
-  static String getCategoryName(int id) {
-    return categoryNames[id] ?? 'Unknown';
   }
 }
