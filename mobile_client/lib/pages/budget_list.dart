@@ -67,7 +67,7 @@ class _BudgetListPageState extends State<BudgetListPage> {
                         ),
                         ElevatedButton(
                           onPressed: () {},
-                          child: Text("Add Budget"),
+                          child: Text("+ Budget"),
                         ),
                       ],
                     ),

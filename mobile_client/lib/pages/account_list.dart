@@ -131,7 +131,7 @@ class _AccountListPageState extends State<AccountListPage> {
                               },
                             );
                           },
-                          child: Text("Add Account"),
+                          child: Text("+ Account"),
                         ),
                       ],
                     ),

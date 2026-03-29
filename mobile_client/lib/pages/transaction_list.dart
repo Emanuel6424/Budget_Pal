@@ -55,7 +55,7 @@ class _TransactionListPage extends State<TransactionListPage> {
                         onPressed: () {
                           print("hello");
                         },
-                        child: Text("Add Transaction"),
+                        child: Text("+ Transaction"),
                       ),
                     ],
                   ),
