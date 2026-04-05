@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,12 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import budgetpal.account.Account;
 import budgetpal.budget.Budget;
-import budgetpal.transaction.Transaction;
 import budgetpal.transaction.TransactionController;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     private final UserService userService;
 
@@ -38,7 +42,7 @@ public class UserController {
             String email,
             List<Account> accounts,
             List<Budget> budgets,
-            List<TransactionController.TransactionResponse> recentTransactions, // Change this
+            List<TransactionController.TransactionResponse> recentTransactions,
             LocalDateTime createdAt,
             LocalDateTime updatedAt) {
     }
@@ -48,34 +52,37 @@ public class UserController {
             String password) {
     }
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
-     * This api endpoint takes a request body anc creates a new user in the database
+     * This api endpoint takes a request body and creates a new user in the database
      * Each account must have a first name, last name, email, and password
      */
     @PostMapping(value = "/new")
     public ResponseEntity<UserResponse> newUser(@RequestBody NewUserRequest request) {
         try {
             if (request.firstName() == null || request.lastName() == null ||
-                    request.email() == null || request.password() == null) // Use () methods
+                    request.email() == null || request.password() == null)
                 throw new IllegalArgumentException("Missing required fields");
 
-            Optional<User> testUser = userService.findByEmail(request.email()); // Use ()
+            Optional<User> testUser = userService.findByEmail(request.email());
 
+            // ✅ Return 409 Conflict if email already exists
             if (testUser.isPresent()) {
-                return new ResponseEntity<>(userService.toUserReponseBuilder(testUser.get()), HttpStatus.OK);
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
 
+            // ✅ Hash password before saving
             User user = new User(
-                    request.firstName(), // Use constructor
+                    request.firstName(),
                     request.lastName(),
                     request.email(),
-                    request.password());
+                    passwordEncoder.encode(request.password()));
 
-            User savedUser = userService.save(user); // Use savedUser for response
+            User savedUser = userService.save(user);
 
             return new ResponseEntity<>(userService.toUserReponseBuilder(savedUser), HttpStatus.CREATED);
         } catch (Exception e) {
@@ -107,7 +114,8 @@ public class UserController {
             User user = userService.findByEmail(request.email())
                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-            if (request.password().equals(user.getPassword()))
+            // ✅ Correctly comparing hashed password
+            if (passwordEncoder.matches(request.password(), user.getPassword()))
                 return ResponseEntity.ok(userService.toUserReponseBuilder(user));
 
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
