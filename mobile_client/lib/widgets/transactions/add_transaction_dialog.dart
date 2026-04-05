@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 class AddTransactionDialog extends StatefulWidget {
   final List<Account> accounts; // Add this
-  final Function(
+  final Future<void> Function(
     int accountId, // Add accountId as first parameter
     DateTime date,
     String description,
@@ -83,11 +83,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     }
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
       final double amount = double.tryParse(_amountController.text) ?? 0.0;
 
-      widget.onAdd(
+      await widget.onAdd(
         _selectedAccountId, // Pass account ID
         _selectedDate,
         _descriptionController.text,
@@ -97,7 +97,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
         _selectedCategoryId,
       );
 
-      Navigator.of(context).pop();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 

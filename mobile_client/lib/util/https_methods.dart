@@ -236,4 +236,39 @@ class HttpsMethods {
       throw Exception("Error fetching recent transactions: $e");
     }
   }
+
+  // In util/https_methods.dart
+  Future<void> createBudget(
+    int userId,
+    String name,
+    double limitAmount,
+    String period,
+    DateTime startDate,
+    DateTime endDate,
+    int categoryId,
+  ) async {
+    try {
+      var url = Uri.parse(Endpoints.createBudgetUrl());
+
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "name": name,
+          "limitAmount": limitAmount,
+          "period": period,
+          "startDate": DateFormat('yyyy-MM-dd').format(startDate),
+          "endDate": DateFormat('yyyy-MM-dd').format(endDate),
+          "userId": userId,
+          "categoryId": categoryId,
+        }),
+      );
+
+      if (response.statusCode != 201) {
+        throw Exception("Failed to create budget: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error creating budget: $e");
+    }
+  }
 }

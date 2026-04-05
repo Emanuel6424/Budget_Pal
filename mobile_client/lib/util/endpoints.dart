@@ -46,4 +46,9 @@ class Endpoints {
   static String getRecentTransactionsUrl(int userId) {
     return '${getBaseUrl()}/transaction/recent/$userId';
   }
+
+  // In util/endpoints.dart
+  static String createBudgetUrl() {
+    return '${getBaseUrl()}/budget/new';
+  }
 }

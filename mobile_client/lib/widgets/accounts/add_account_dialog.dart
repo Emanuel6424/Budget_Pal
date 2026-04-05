@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 class AddAccountDialog extends StatefulWidget {
   // Callback function that gets called when user submits the form
-  final Function(String name, String type, String accountNumber, double balance)
+  final Future<void> Function(
+    String name,
+    String type,
+    String accountNumber,
+    double balance,
+  )
   onAdd;
 
   const AddAccountDialog({super.key, required this.onAdd});
@@ -41,22 +46,23 @@ class _AddAccountDialogState extends State<AddAccountDialog> {
     super.dispose();
   }
 
-  void _handleSubmit() {
+  Future<void> _handleSubmit() async {
     // Validate the form
     if (_formKey.currentState!.validate()) {
       // Parse balance string to double
       final double balance = double.tryParse(_balanceController.text) ?? 0.0;
 
       // Call the callback function with the form data
-      widget.onAdd(
+      await widget.onAdd(
         _nameController.text,
         _selectedType,
         _accountNumberController.text,
         balance,
       );
 
-      // Close the dialog
-      Navigator.of(context).pop();
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
     }
   }
 
