@@ -1,15 +1,18 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 class Endpoints {
   static const String _productionUrl =
       'https://budgetpal-production.up.railway.app/api';
 
   static String getBaseUrl() {
-    // Returns production URL when not running on a local emulator
-    if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8080/api'; // local emulator
+    if (kIsWeb) {
+      return _productionUrl; // ✅ always use production on web
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:8080/api'; // local android emulator
     } else {
-      return _productionUrl; // production
+      return _productionUrl;
     }
   }
 
