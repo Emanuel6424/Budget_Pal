@@ -1,6 +1,6 @@
 spring:
   liquibase:
-    enabled: false
+    enabled: true
     change-log: classpath:/db/migration/changelog-root.xml
     default-schema: ${PGSCHEMA:budgetpalproject}
   datasource:
