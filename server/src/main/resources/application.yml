@@ -2,14 +2,14 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/migration/changelog-root.xml
-    default-schema: budgetpalproject
+    default-schema: ${PGSCHEMA:budgetpalproject}
   datasource:
-    url: jdbc:postgresql://127.0.0.1:5432/postgres
-    username: postgres
-    password: postgres123
+    url: ${DATABASE_URL}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     properties:
       hibernate:
-        default_schema: budgetpalproject
+        default_schema: ${PGSCHEMA:budgetpalproject}
