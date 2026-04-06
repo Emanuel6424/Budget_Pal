@@ -1,12 +1,15 @@
 import 'dart:io';
 
 class Endpoints {
+  static const String _productionUrl =
+      'https://budgetpal-production.up.railway.app/api';
+
   static String getBaseUrl() {
-    // Use the environment variable if available, otherwise default to localhost.
+    // Returns production URL when not running on a local emulator
     if (Platform.isAndroid) {
-      return 'http://10.0.2.2:8080/api';
+      return 'http://10.0.2.2:8080/api'; // local emulator
     } else {
-      return 'http://localhost:8080/api';
+      return _productionUrl; // production
     }
   }
 
