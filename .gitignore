@@ -2,3 +2,8 @@
 server/target/
 **/target/
 .vscode/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
