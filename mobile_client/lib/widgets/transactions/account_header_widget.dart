@@ -18,23 +18,24 @@ class AccountHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(
-                name,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              title: Text(name, style: textTheme.titleMedium),
+              subtitle: Text(
+                "$type Account • $accountNumber",
+                style: textTheme.bodySmall,
               ),
-              subtitle: Text(type + " Account * " + accountNumber),
             ),
             Text(
               currencyFormat.format(balance),
-              style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+              style: textTheme.titleLarge?.copyWith(fontSize: 34),
             ),
           ],
         ),

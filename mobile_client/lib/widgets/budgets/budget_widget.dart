@@ -1,3 +1,4 @@
+import 'package:budget_pal/main.dart';
 import 'package:budget_pal/models/budget_status.dart';
 import 'package:budget_pal/util/https_methods.dart';
 import 'package:flutter/material.dart';
@@ -35,20 +36,21 @@ class BudgetWidget extends StatelessWidget {
   };
 
   Color _getProgressColor(double percentUsed) {
-    if (percentUsed >= 95) return Colors.red;
-    if (percentUsed >= 75) return Colors.orange;
-    return Colors.green;
+    if (percentUsed >= 95) return AppColors.danger;
+    if (percentUsed >= 75) return AppColors.warning;
+    return AppColors.success;
   }
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return FutureBuilder<BudgetStatus?>(
       future: HttpsMethods().getBudgetStatus(budgetId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Card(
             child: Padding(
-              padding: EdgeInsets.all(40.0),
+              padding: const EdgeInsets.all(24.0),
               child: Center(child: CircularProgressIndicator()),
             ),
           );
@@ -57,8 +59,8 @@ class BudgetWidget extends StatelessWidget {
         if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
           return Card(
             child: Padding(
-              padding: EdgeInsets.all(40.0),
-              child: Text('Error loading budget'),
+              padding: const EdgeInsets.all(24.0),
+              child: Text('Error loading budget', style: textTheme.bodyMedium),
             ),
           );
         }
@@ -68,89 +70,73 @@ class BudgetWidget extends StatelessWidget {
 
         return Card(
           child: Padding(
-            padding: EdgeInsets.all(24.0),
-            child: Column(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with icon and name
-                Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        categoryIcons[categoryId] ?? Icons.category,
-                        size: 28,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            name,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                // Progress ring with percentage
+                SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 64,
+                        height: 64,
+                        child: CircularProgressIndicator(
+                          value: (status.percentUsed / 100).clamp(0.0, 1.0),
+                          strokeWidth: 6,
+                          backgroundColor: AppColors.inputBackground,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            progressColor,
                           ),
-                          Text(
-                            period,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
+                        ),
+                      ),
+                      Text(
+                        '${status.percentUsed.toStringAsFixed(0)}%',
+                        style: textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            categoryIcons[categoryId] ?? Icons.category,
+                            size: 16,
+                            color: AppColors.textMuted,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(name, style: textTheme.titleMedium),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-
-                // Spent and remaining amounts
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${currencyFormat.format(status.spent)} of ${currencyFormat.format(status.limit)}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                      Text(period, style: textTheme.bodySmall),
+                      const SizedBox(height: 10),
+                      Text(
+                        '${currencyFormat.format(status.spent)} of ${currencyFormat.format(status.limit)}',
+                        style: textTheme.labelMedium,
                       ),
-                    ),
-                    Text(
-                      '${currencyFormat.format(status.remaining)} left',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                      Text(
+                        '${currencyFormat.format(status.remaining)} left',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: progressColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12),
-
-                // Progress bar
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: status.percentUsed / 100,
-                    minHeight: 12,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                    ],
                   ),
-                ),
-                SizedBox(height: 8),
-
-                // Percentage used
-                Text(
-                  '${status.percentUsed.toStringAsFixed(0)}% used',
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),

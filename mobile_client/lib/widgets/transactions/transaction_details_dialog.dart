@@ -1,3 +1,4 @@
+import 'package:budget_pal/main.dart';
 import 'package:budget_pal/pages/account_details.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -27,33 +28,29 @@ class TransactionDetailsDialog extends StatefulWidget {
 }
 
 class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
-  Widget _detailRow(IconData icon, String label, String value) {
+  Widget _detailRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
+    final textTheme = Theme.of(context).textTheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: Colors.grey[500]),
+          Icon(icon, size: 18, color: AppColors.textMuted),
           const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[500],
-                  letterSpacing: 0.5,
-                ),
-              ),
+              Text(label, style: textTheme.labelSmall),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 15,
+                style: textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
                 ),
               ),
             ],
@@ -65,14 +62,14 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     final isDebit = widget.type == "DEBIT";
-    final color = isDebit ? Colors.red : Colors.green;
+    final color = isDebit ? AppColors.danger : AppColors.success;
     final bgColor = isDebit
-        ? const Color.fromARGB(80, 244, 67, 54)
-        : const Color.fromARGB(86, 76, 175, 79);
+        ? AppColors.dangerBackground
+        : AppColors.successBackground;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
         padding: const EdgeInsets.all(24.0),
@@ -88,7 +85,7 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: bgColor,
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
                     child: Icon(
                       isDebit ? Icons.trending_down : Icons.trending_up,
@@ -102,23 +99,14 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
                     children: [
                       Text(
                         isDebit ? "Payment" : "Deposit",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[500],
-                          letterSpacing: 0.5,
-                        ),
+                        style: textTheme.labelSmall,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         isDebit
                             ? "-${widget.currencyFormat.format(widget.amount)}"
                             : "+${widget.currencyFormat.format(widget.amount)}",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: color,
-                        ),
+                        style: textTheme.displaySmall?.copyWith(color: color),
                       ),
                     ],
                   ),
@@ -132,9 +120,9 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
               // Detail fields in a subtle card
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  color: AppColors.categoryTint,
+                  borderRadius: BorderRadius.circular(AppRadius.input),
+                  border: Border.all(color: AppColors.border),
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -142,15 +130,22 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
                 ),
                 child: Column(
                   children: [
-                    _detailRow(Icons.storefront, "MERCHANT", widget.merchant),
-                    Divider(color: Colors.grey[200], height: 1),
                     _detailRow(
+                      context,
+                      Icons.storefront,
+                      "MERCHANT",
+                      widget.merchant,
+                    ),
+                    Divider(color: AppColors.border, height: 1),
+                    _detailRow(
+                      context,
                       Icons.label_outline,
                       "CATEGORY",
                       CategoryHelper.getCategoryName(widget.categoryId),
                     ),
-                    Divider(color: Colors.grey[200], height: 1),
+                    Divider(color: AppColors.border, height: 1),
                     _detailRow(
+                      context,
                       Icons.calendar_month,
                       "DATE",
                       DateFormat.yMMMd().format(widget.date),
@@ -165,30 +160,20 @@ class _TransactionDetailsDialogState extends State<TransactionDetailsDialog> {
               Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
+                  color: AppColors.categoryTint,
+                  borderRadius: BorderRadius.circular(AppRadius.input),
+                  border: Border.all(color: AppColors.border),
                 ),
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "DESCRIPTION",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[500],
-                        letterSpacing: 0.5,
-                      ),
-                    ),
+                    Text("DESCRIPTION", style: textTheme.labelSmall),
                     const SizedBox(height: 4),
                     Text(
                       widget.description,
-                      style: const TextStyle(
-                        fontSize: 15,
+                      style: textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
                       ),
                     ),
                   ],

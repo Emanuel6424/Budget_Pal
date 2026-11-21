@@ -1,3 +1,4 @@
+import 'package:budget_pal/main.dart';
 import 'package:budget_pal/pages/account_details.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -27,18 +28,13 @@ class AccountWidget extends StatelessWidget {
     "Credit Card": Icons.credit_card_outlined,
   };
 
-  Map<String, Color> accountTypeHighlight = {
-    "Checking": const Color.fromARGB(82, 255, 255, 0),
-    "Savings": const Color.fromARGB(80, 105, 240, 175),
-    "Retirement": const Color.fromARGB(80, 158, 158, 158),
-    "Credit Card": const Color.fromARGB(76, 255, 172, 64),
-  };
-
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
     return Card(
       child: InkWell(
-        onDoubleTap: () {
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -47,47 +43,44 @@ class AccountWidget extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: EdgeInsets.all(40.0),
-          child: Column(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Icon(accountTypeIcons[type], size: 30, color: Colors.black),
-                  Container(
-                    padding: EdgeInsets.all(12), // Space around icon
-                    decoration: BoxDecoration(
-                      color: accountTypeHighlight[type], // Light background
-                      borderRadius: BorderRadius.circular(
-                        10,
-                      ), // Rounded corners
-                    ),
-                    child: Icon(
-                      accountTypeIcons[type],
-                      size: 28,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(accountNumber),
-                ],
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.accountTypeTints[type],
+                  borderRadius: BorderRadius.circular(AppRadius.input),
+                ),
+                child: Icon(
+                  accountTypeIcons[type],
+                  size: 26,
+                  color: AppColors.primary,
+                ),
               ),
-
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: textTheme.titleMedium),
+                    Text("$type • $accountNumber", style: textTheme.bodySmall),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
               Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  ListTile(
-                    title: Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(type + " Account"),
-                  ),
                   Text(
                     currencyFormat.format(balance),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 18,
+                    color: AppColors.textMuted,
                   ),
                 ],
               ),

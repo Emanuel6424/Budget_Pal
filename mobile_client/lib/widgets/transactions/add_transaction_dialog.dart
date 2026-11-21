@@ -116,10 +116,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               // Account Dropdown (ADD THIS FIRST)
               DropdownButtonFormField<int>(
                 value: _selectedAccountId,
-                decoration: InputDecoration(
-                  labelText: 'Account',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Account'),
                 items: widget.accounts.map((account) {
                   return DropdownMenuItem<int>(
                     value: account.id,
@@ -147,10 +144,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               // Description Field
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Item/Title',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Item/Title'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -163,10 +157,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               // Merchant Field
               TextFormField(
                 controller: _merchantController,
-                decoration: InputDecoration(
-                  labelText: 'Merchant',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Merchant'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a merchant';
@@ -181,7 +172,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 controller: _amountController,
                 decoration: InputDecoration(
                   labelText: 'Amount',
-                  border: OutlineInputBorder(),
                   prefixText: '\$',
                 ),
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -200,10 +190,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               // Transaction Type Dropdown
               DropdownButtonFormField<String>(
                 value: _selectedType,
-                decoration: InputDecoration(
-                  labelText: 'Type',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Type'),
                 items: _transactionTypes.map((String type) {
                   return DropdownMenuItem<String>(
                     value: type,
@@ -223,10 +210,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               // Category Dropdown
               DropdownButtonFormField<int>(
                 value: _selectedCategoryId,
-                decoration: InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Category'),
                 items: _categories.entries.map((entry) {
                   return DropdownMenuItem<int>(
                     value: entry.key,

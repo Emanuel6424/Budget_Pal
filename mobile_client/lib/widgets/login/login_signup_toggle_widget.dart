@@ -1,3 +1,4 @@
+import 'package:budget_pal/main.dart';
 import 'package:flutter/material.dart';
 
 class LoginSignUpToggle extends StatelessWidget {
@@ -14,8 +15,8 @@ class LoginSignUpToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFE0E0E0), // Light gray background
-        borderRadius: BorderRadius.circular(30),
+        color: AppColors.inputBackground,
+        borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       padding: const EdgeInsets.all(4),
       child: Row(
@@ -26,12 +27,12 @@ class LoginSignUpToggle extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: isLogin ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
+                  color: isLogin ? AppColors.surface : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                   boxShadow: isLogin
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: AppColors.primary.withOpacity(0.15),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -42,7 +43,9 @@ class LoginSignUpToggle extends StatelessWidget {
                   child: Text(
                     "Login",
                     style: TextStyle(
-                      color: isLogin ? Colors.black : Colors.black54,
+                      color: isLogin
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                       fontWeight: isLogin ? FontWeight.w600 : FontWeight.w500,
                       fontSize: 15,
                     ),
@@ -57,12 +60,12 @@ class LoginSignUpToggle extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
-                  color: !isLogin ? Colors.white : Colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
+                  color: !isLogin ? AppColors.surface : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                   boxShadow: !isLogin
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: AppColors.primary.withOpacity(0.15),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -73,7 +76,9 @@ class LoginSignUpToggle extends StatelessWidget {
                   child: Text(
                     "Sign Up",
                     style: TextStyle(
-                      color: !isLogin ? Colors.black : Colors.black54,
+                      color: !isLogin
+                          ? AppColors.textPrimary
+                          : AppColors.textSecondary,
                       fontWeight: !isLogin ? FontWeight.w600 : FontWeight.w500,
                       fontSize: 15,
                     ),

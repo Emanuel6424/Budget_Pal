@@ -1,4 +1,5 @@
 // pages/budgets_list.dart
+import 'package:budget_pal/main.dart';
 import 'package:budget_pal/models/notification.dart';
 import 'package:budget_pal/providers/user_provider.dart';
 import 'package:budget_pal/services/notification_service.dart';
@@ -61,9 +62,9 @@ class _BudgetListPageState extends State<BudgetListPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     'No account found',
-                    style: TextStyle(fontSize: 24, color: Colors.black),
+                    style: Theme.of(context).textTheme.displaySmall,
                   ),
                   ElevatedButton(
                     onPressed: () {
@@ -77,35 +78,34 @@ class _BudgetListPageState extends State<BudgetListPage> {
           );
         }
         return Scaffold(
-          appBar: AppBar(title: Text("Budgets")),
-          body: Center(
+          body: SafeArea(
             child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Budgets",
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "Track your spending",
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ],
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Budgets",
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                          Text(
+                            "Track your spending",
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                      Material(
+                        color: AppColors.primary,
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          customBorder: const CircleBorder(),
+                          onTap: () {
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -168,70 +168,74 @@ class _BudgetListPageState extends State<BudgetListPage> {
                               },
                             );
                           },
-                          child: Text("+ Budget"),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 24),
-
-                    ..._underspentNotifications.map(
-                      (notification) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Dismissible(
-                          key: ValueKey('notification-${notification.id}'),
-                          direction: DismissDirection.endToStart,
-                          onDismissed: (_) => _dismissNotification(notification),
-                          background: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.green[100],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(Icons.close),
-                          ),
-                          child: Card(
-                            color: Colors.green[50],
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.savings,
-                                color: Colors.green,
-                              ),
-                              title: Text(notification.title),
-                              subtitle: Text(notification.body),
+                          child: const Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Icon(
+                              Icons.add,
+                              color: AppColors.onPrimary,
+                              size: 22,
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
 
-                    if (user.budgets.isEmpty)
-                      Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(32.0),
-                          child: Text(
-                            'No budgets found. Create your first budget!',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
+                  ..._underspentNotifications.map(
+                    (notification) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Dismissible(
+                        key: ValueKey('notification-${notification.id}'),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (_) => _dismissNotification(notification),
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.successBackground,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.close),
+                        ),
+                        child: Card(
+                          color: AppColors.successBackground,
+                          child: ListTile(
+                            leading: const Icon(
+                              Icons.savings,
+                              color: AppColors.success,
                             ),
+                            title: Text(notification.title),
+                            subtitle: Text(notification.body),
                           ),
                         ),
-                      )
-                    else
-                      ...user.budgets
-                          .map(
-                            (budget) => BudgetWidget(
-                              budgetId: budget.id,
-                              name: budget.name,
-                              limitAmount: budget.limitAmount,
-                              period: budget.period,
-                              categoryId: budget.categoryId,
-                            ),
-                          )
-                          .toList(),
-                  ],
-                ),
+                      ),
+                    ),
+                  ),
+
+                  if (user.budgets.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Text(
+                          'No budgets found. Create your first budget!',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    )
+                  else
+                    ...user.budgets
+                        .map(
+                          (budget) => BudgetWidget(
+                            budgetId: budget.id,
+                            name: budget.name,
+                            limitAmount: budget.limitAmount,
+                            period: budget.period,
+                            categoryId: budget.categoryId,
+                          ),
+                        )
+                        .toList(),
+                ],
               ),
             ),
           ),

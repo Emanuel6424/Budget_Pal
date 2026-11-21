@@ -75,64 +75,55 @@ class _AccountDetailsPage extends State<AccountDetailsPage> {
                   SizedBox(height: 24),
 
                   // Transactions section with card container
-                  Container(
+                  SizedBox(
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 10,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Transaction History',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Transaction History',
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
-                          ),
-                          SizedBox(height: 10),
+                            const SizedBox(height: 10),
 
-                          if (isLoading)
-                            Center(child: CircularProgressIndicator())
-                          else if (error != null)
-                            Center(child: Text('Error: $error'))
-                          else if (transactions == null ||
-                              transactions!.isEmpty)
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(32.0),
+                            if (isLoading)
+                              const Center(child: CircularProgressIndicator())
+                            else if (error != null)
+                              Center(
                                 child: Text(
-                                  'No transactions found',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
+                                  'Error: $error',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              )
+                            else if (transactions == null ||
+                                transactions!.isEmpty)
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(32.0),
+                                  child: Text(
+                                    'No transactions found',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium,
                                   ),
                                 ),
-                              ),
-                            )
-                          else
-                            ...transactions!.map((transaction) {
-                              return TransactionWidget(
-                                date: transaction.date,
-                                description: transaction.description,
-                                categoryId: transaction.categoryId,
-                                amount: transaction.amount,
-                                type: transaction.type,
-                                merchant: transaction.merchant,
-                              );
-                            }).toList(),
-                        ],
+                              )
+                            else
+                              ...transactions!.map((transaction) {
+                                return TransactionWidget(
+                                  date: transaction.date,
+                                  description: transaction.description,
+                                  categoryId: transaction.categoryId,
+                                  amount: transaction.amount,
+                                  type: transaction.type,
+                                  merchant: transaction.merchant,
+                                );
+                              }).toList(),
+                          ],
+                        ),
                       ),
                     ),
                   ),

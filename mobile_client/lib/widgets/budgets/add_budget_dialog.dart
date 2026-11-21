@@ -132,7 +132,6 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
                 decoration: InputDecoration(
                   labelText: 'Budget Name',
                   hintText: 'e.g., Monthly Groceries',
-                  border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -148,7 +147,6 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
                 controller: _limitAmountController,
                 decoration: InputDecoration(
                   labelText: 'Budget Limit',
-                  border: OutlineInputBorder(),
                   prefixText: '\$',
                 ),
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -167,10 +165,7 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
               // Period Dropdown
               DropdownButtonFormField<String>(
                 value: _selectedPeriod,
-                decoration: InputDecoration(
-                  labelText: 'Period',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Period'),
                 items: _budgetPeriods.map((String period) {
                   return DropdownMenuItem<String>(
                     value: period,
@@ -191,10 +186,7 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
               // Category Dropdown
               DropdownButtonFormField<int>(
                 value: _selectedCategoryId,
-                decoration: InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Category'),
                 items: _categories.entries.map((entry) {
                   return DropdownMenuItem<int>(
                     value: entry.key,
