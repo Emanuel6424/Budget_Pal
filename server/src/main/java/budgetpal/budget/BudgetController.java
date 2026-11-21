@@ -1,6 +1,7 @@
 package budgetpal.budget;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import budgetpal.budget.BudgetService.BudgetHistoryEntry;
 import budgetpal.budget.BudgetService.BudgetStatus;
 import budgetpal.category.Category;
 import budgetpal.category.CategoryRepository;
@@ -98,6 +100,14 @@ public class BudgetController {
                 } catch (IllegalArgumentException e) {
                         return ResponseEntity.notFound().build();
                 }
+        }
+
+        // Past (inactive) budgets for this user, with spent/saved computed on the fly.
+        // NOTE: there is no auth yet (MVP). userId is client-supplied, not token-derived,
+        // so this returns whichever user's history is asked for. See README for the caveat.
+        @GetMapping("/history/{userId}")
+        public ResponseEntity<List<BudgetHistoryEntry>> getBudgetHistory(@PathVariable Integer userId) {
+                return ResponseEntity.ok(budgetService.getBudgetHistory(userId));
         }
 
 }

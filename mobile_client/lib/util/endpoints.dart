@@ -51,4 +51,12 @@ class Endpoints {
   static String createBudgetUrl() {
     return '${getBaseUrl()}/budget/new';
   }
+
+  static String getNotificationsUrl(int userId) {
+    return '${getBaseUrl()}/notification/$userId';
+  }
+
+  static String markNotificationReadUrl(int notificationId, int userId) {
+    return '${getBaseUrl()}/notification/$notificationId/read?userId=$userId';
+  }
 }

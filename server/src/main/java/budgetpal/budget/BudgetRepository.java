@@ -11,4 +11,8 @@ public interface BudgetRepository extends CrudRepository<Budget, Integer>  {
         LocalDate currentDate1,
         LocalDate currentDate2
     );
+
+    List<Budget> findByIsActiveTrueAndEndDateLessThan(LocalDate today);
+
+    List<Budget> findByUserIdAndIsActiveFalse(Integer userId);
 }
