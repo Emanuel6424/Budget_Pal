@@ -1,4 +1,5 @@
 import 'package:budget_pal/main.dart';
+import 'package:budget_pal/models/user.dart';
 import 'package:budget_pal/util/https_methods.dart';
 import 'package:budget_pal/widgets/transactions/add_transaction_dialog.dart';
 import 'package:budget_pal/widgets/transactions/transaction_widget.dart';
@@ -78,6 +79,13 @@ class _TransactionListPage extends State<TransactionListPage> {
         );
       },
     );
+  }
+
+  Future<void> _refreshUser(UserProvider userProvider, User currentUser) async {
+    final updatedUser = await HttpsMethods().getUserByEmail(currentUser.email);
+    if (updatedUser != null) {
+      userProvider.setUser(updatedUser);
+    }
   }
 
   @override
@@ -161,12 +169,83 @@ class _TransactionListPage extends State<TransactionListPage> {
                   else
                     ...user.recentTransactions.map((transaction) {
                       return TransactionWidget(
-                        date: transaction.date,
-                        description: transaction.description,
-                        categoryId: transaction.categoryId,
-                        amount: transaction.amount,
-                        type: transaction.type,
-                        merchant: transaction.merchant,
+                        transaction: transaction,
+                        accounts: user.accounts,
+                        onEdit:
+                            (
+                              transactionId,
+                              accountId,
+                              date,
+                              description,
+                              merchant,
+                              amount,
+                              type,
+                              categoryId,
+                            ) async {
+                              final scaffoldMessenger =
+                                  ScaffoldMessenger.of(context);
+
+                              try {
+                                await HttpsMethods().updateTransaction(
+                                  transactionId,
+                                  user.id,
+                                  accountId: accountId,
+                                  date: date,
+                                  description: description,
+                                  merchant: merchant,
+                                  amount: amount,
+                                  type: type,
+                                  categoryId: categoryId,
+                                );
+
+                                await _refreshUser(userProvider, user);
+
+                                scaffoldMessenger.showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Transaction updated successfully!',
+                                    ),
+                                  ),
+                                );
+                              } catch (e) {
+                                scaffoldMessenger.showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Failed to update transaction: $e',
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                        onDelete: (transactionId) async {
+                          final scaffoldMessenger =
+                              ScaffoldMessenger.of(context);
+
+                          try {
+                            await HttpsMethods().deleteTransaction(
+                              transactionId,
+                              user.id,
+                            );
+
+                            await _refreshUser(userProvider, user);
+
+                            scaffoldMessenger.showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Transaction deleted successfully!',
+                                ),
+                              ),
+                            );
+                          } catch (e) {
+                            scaffoldMessenger.showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Failed to delete transaction: $e',
+                                ),
+                              ),
+                            );
+                          }
+                        },
                       );
                     }),
                 ],

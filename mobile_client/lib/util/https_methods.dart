@@ -118,6 +118,47 @@ class HttpsMethods {
     }
   }
 
+  Future<void> updateAccount(
+    int accountId,
+    int userId, {
+    String? name,
+    String? accountNumber,
+  }) async {
+    var url = Uri.parse(Endpoints.updateAccountUrl(accountId));
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: headers,
+        body: jsonEncode({
+          'userId': userId,
+          'name': name,
+          'accountNumber': accountNumber,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to update account: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error updating account: $e");
+    }
+  }
+
+  Future<void> deleteAccount(int accountId, int userId) async {
+    var url = Uri.parse(Endpoints.deleteAccountUrl(accountId, userId));
+
+    try {
+      final response = await http.delete(url, headers: headers);
+
+      if (response.statusCode != 204) {
+        throw Exception("Failed to delete account: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error deleting account: $e");
+    }
+  }
+
   Future<List<Transaction>> getTransactions(int accountId) async {
     // Type it properly
     try {
@@ -182,6 +223,56 @@ class HttpsMethods {
       }
     } catch (e) {
       throw Exception("Error creating transaction: $e");
+    }
+  }
+
+  Future<void> updateTransaction(
+    int transactionId,
+    int userId, {
+    int? accountId,
+    DateTime? date,
+    String? description,
+    String? merchant,
+    double? amount,
+    String? type,
+    int? categoryId,
+  }) async {
+    try {
+      var url = Uri.parse(Endpoints.updateTransactionUrl(transactionId));
+
+      final response = await http.patch(
+        url,
+        headers: headers,
+        body: jsonEncode({
+          "userId": userId,
+          "accountId": accountId,
+          "date": date != null ? DateFormat('yyyy-MM-dd').format(date) : null,
+          "description": description,
+          "merchant": merchant,
+          "amount": amount,
+          "type": type,
+          "categoryId": categoryId,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to update transaction: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error updating transaction: $e");
+    }
+  }
+
+  Future<void> deleteTransaction(int transactionId, int userId) async {
+    try {
+      var url = Uri.parse(Endpoints.deleteTransactionUrl(transactionId, userId));
+      final response = await http.delete(url, headers: headers);
+
+      if (response.statusCode != 204) {
+        throw Exception("Failed to delete transaction: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error deleting transaction: $e");
     }
   }
 
@@ -293,6 +384,58 @@ class HttpsMethods {
       }
     } catch (e) {
       throw Exception("Error creating budget: $e");
+    }
+  }
+
+  Future<void> updateBudget(
+    int budgetId,
+    int userId, {
+    String? name,
+    double? limitAmount,
+    String? period,
+    DateTime? startDate,
+    DateTime? endDate,
+    int? categoryId,
+  }) async {
+    try {
+      var url = Uri.parse(Endpoints.updateBudgetUrl(budgetId));
+
+      final response = await http.patch(
+        url,
+        headers: headers,
+        body: jsonEncode({
+          "userId": userId,
+          "name": name,
+          "limitAmount": limitAmount,
+          "period": period,
+          "startDate": startDate != null
+              ? DateFormat('yyyy-MM-dd').format(startDate)
+              : null,
+          "endDate": endDate != null
+              ? DateFormat('yyyy-MM-dd').format(endDate)
+              : null,
+          "categoryId": categoryId,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception("Failed to update budget: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error updating budget: $e");
+    }
+  }
+
+  Future<void> deleteBudget(int budgetId, int userId) async {
+    try {
+      var url = Uri.parse(Endpoints.deleteBudgetUrl(budgetId, userId));
+      final response = await http.delete(url, headers: headers);
+
+      if (response.statusCode != 204) {
+        throw Exception("Failed to delete budget: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error deleting budget: $e");
     }
   }
 }

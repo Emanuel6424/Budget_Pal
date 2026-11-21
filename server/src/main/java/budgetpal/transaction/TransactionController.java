@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController
 @RequestMapping("/api/transaction")
@@ -36,6 +38,17 @@ public class TransactionController {
                         String description,
                         String merchant,
                         double amount,
+                        TransactionType type,
+                        Integer categoryId) {
+        }
+
+        public record UpdateTransactionRequest(
+                        Integer userId,
+                        Integer accountId,
+                        LocalDate date,
+                        String description,
+                        String merchant,
+                        Double amount,
                         TransactionType type,
                         Integer categoryId) {
         }
@@ -137,6 +150,70 @@ public class TransactionController {
                                 .toList();
 
                 return ResponseEntity.ok(responses);
+        }
+
+        @PatchMapping("/{transactionId}")
+        public ResponseEntity<TransactionResponse> updateTransaction(
+                        @PathVariable Integer transactionId,
+                        @RequestBody UpdateTransactionRequest request) {
+                try {
+                        Transaction transaction = transactionService.findById(transactionId)
+                                        .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+
+                        if (request.userId() == null || !transaction.getUser().getId().equals(request.userId()))
+                                throw new IllegalArgumentException("Transaction does not belong to user");
+
+                        if (request.accountId() != null) {
+                                Account account = accountService.findById(request.accountId())
+                                                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+
+                                if (!account.getUser().getId().equals(request.userId()))
+                                        throw new IllegalArgumentException("Account does not belong to user");
+
+                                transaction.setAccount(account);
+                        }
+                        if (request.date() != null)
+                                transaction.setDate(request.date());
+                        if (request.description() != null)
+                                transaction.setDescription(request.description());
+                        if (request.merchant() != null)
+                                transaction.setMerchant(request.merchant());
+                        if (request.amount() != null)
+                                transaction.setAmount(request.amount());
+                        if (request.type() != null)
+                                transaction.setType(request.type());
+                        if (request.categoryId() != null) {
+                                Category category = categoryRepository.findById(request.categoryId())
+                                                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+                                transaction.setCategory(category);
+                        }
+
+                        transactionService.update(transaction);
+
+                        return ResponseEntity.ok(transactionService.toTransactionResponseBuilder(transaction));
+                } catch (Exception e) {
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+        }
+
+        @DeleteMapping("/{transactionId}")
+        public ResponseEntity<Void> deleteTransaction(
+                        @PathVariable Integer transactionId,
+                        @RequestParam Integer userId) {
+                try {
+                        Transaction transaction = transactionService.findById(transactionId)
+                                        .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+
+                        if (!transaction.getUser().getId().equals(userId))
+                                throw new IllegalArgumentException("Transaction does not belong to user");
+
+                        transactionService.delete(transaction);
+
+                        return ResponseEntity.noContent().build();
+                } catch (Exception e) {
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
         }
 
 }

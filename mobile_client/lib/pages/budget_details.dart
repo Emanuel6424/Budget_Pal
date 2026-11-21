@@ -1,10 +1,16 @@
 import 'package:budget_pal/main.dart';
+import 'package:budget_pal/models/budget.dart';
 import 'package:budget_pal/models/budget_status.dart';
 import 'package:budget_pal/models/transaction.dart';
+import 'package:budget_pal/models/user.dart';
+import 'package:budget_pal/providers/user_provider.dart';
 import 'package:budget_pal/util/https_methods.dart';
+import 'package:budget_pal/widgets/budgets/edit_budget_dialog.dart';
+import 'package:budget_pal/widgets/common/confirm_delete_dialog.dart';
 import 'package:budget_pal/widgets/transactions/transaction_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class BudgetDetailsPage extends StatefulWidget {
   final int budgetId;
@@ -75,6 +81,88 @@ class _BudgetDetailsPageState extends State<BudgetDetailsPage> {
     }
   }
 
+  Future<void> _refreshUser(UserProvider userProvider, User currentUser) async {
+    final updatedUser = await HttpsMethods().getUserByEmail(currentUser.email);
+    if (updatedUser != null) {
+      userProvider.setUser(updatedUser);
+    }
+  }
+
+  void _openEditBudgetDialog(
+    BuildContext context,
+    UserProvider userProvider,
+    User user,
+    Budget budget,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return EditBudgetDialog(
+          budget: budget,
+          onEdit: (name, limitAmount, period, startDate, endDate, categoryId) async {
+            final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+            try {
+              await HttpsMethods().updateBudget(
+                budget.id,
+                user.id,
+                name: name,
+                limitAmount: limitAmount,
+                period: period,
+                startDate: startDate,
+                endDate: endDate,
+                categoryId: categoryId,
+              );
+
+              await _refreshUser(userProvider, user);
+              await _loadBudgetDetails();
+
+              scaffoldMessenger.showSnackBar(
+                const SnackBar(content: Text('Budget updated successfully!')),
+              );
+            } catch (e) {
+              scaffoldMessenger.showSnackBar(
+                SnackBar(content: Text('Failed to update budget: $e')),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _handleDeleteBudget(
+    BuildContext context,
+    UserProvider userProvider,
+    User user,
+  ) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context,
+      title: 'Delete Budget',
+      message:
+          'Are you sure you want to delete "${widget.name}"? This cannot be undone.',
+    );
+
+    if (!confirmed || !context.mounted) return;
+
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    try {
+      await HttpsMethods().deleteBudget(widget.budgetId, user.id);
+      await _refreshUser(userProvider, user);
+
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Budget deleted successfully!')),
+      );
+      navigator.pop();
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Failed to delete budget: $e')),
+      );
+    }
+  }
+
   Color _getProgressColor(double percentUsed) {
     if (percentUsed >= 95) return AppColors.danger;
     if (percentUsed >= 75) return AppColors.warning;
@@ -85,65 +173,179 @@ class _BudgetDetailsPageState extends State<BudgetDetailsPage> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.name)),
-      body: SafeArea(
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : error != null
-            ? Center(child: Text(error!, style: textTheme.bodyMedium))
-            : SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _BudgetSummaryCard(
-                      status: status!,
-                      categoryIcon:
-                          categoryIcons[widget.categoryId] ?? Icons.category,
-                      progressColor: _getProgressColor(status!.percentUsed),
-                      currencyFormat: currencyFormat,
-                    ),
-                    const SizedBox(height: 28),
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.user;
+        final budget = user?.budgets.firstWhere(
+          (b) => b.id == widget.budgetId,
+          orElse: () => Budget(
+            id: widget.budgetId,
+            name: widget.name,
+            limitAmount: 0,
+            period: 'MONTHLY',
+            startDate: DateTime.now().toIso8601String(),
+            endDate: DateTime.now().toIso8601String(),
+            active: true,
+            categoryId: widget.categoryId,
+          ),
+        );
 
-                    Text(
-                      "Contributing Transactions",
-                      style: textTheme.titleMedium,
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.name),
+            actions: user == null || budget == null
+                ? null
+                : [
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          _openEditBudgetDialog(context, userProvider, user, budget);
+                        } else if (value == 'delete') {
+                          _handleDeleteBudget(context, userProvider, user);
+                        }
+                      },
+                      itemBuilder: (context) => const [
+                        PopupMenuItem(value: 'edit', child: Text('Edit Budget')),
+                        PopupMenuItem(value: 'delete', child: Text('Delete Budget')),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "Expenses in this category between "
-                      "${DateFormat.yMMMd().format(DateTime.parse(status!.startDate))} and "
-                      "${DateFormat.yMMMd().format(DateTime.parse(status!.endDate))}",
-                      style: textTheme.bodySmall,
-                    ),
-                    const SizedBox(height: 12),
-
-                    if (transactions.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        child: Center(
-                          child: Text(
-                            "No transactions have contributed to this budget yet.",
-                            style: textTheme.bodyMedium,
-                          ),
-                        ),
-                      )
-                    else
-                      ...transactions.map(
-                        (transaction) => TransactionWidget(
-                          date: transaction.date,
-                          description: transaction.description,
-                          categoryId: transaction.categoryId,
-                          amount: transaction.amount,
-                          type: transaction.type,
-                          merchant: transaction.merchant,
-                        ),
-                      ),
                   ],
-                ),
-              ),
-      ),
+          ),
+          body: SafeArea(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : error != null
+                ? Center(child: Text(error!, style: textTheme.bodyMedium))
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _BudgetSummaryCard(
+                          status: status!,
+                          categoryIcon:
+                              categoryIcons[widget.categoryId] ?? Icons.category,
+                          progressColor: _getProgressColor(status!.percentUsed),
+                          currencyFormat: currencyFormat,
+                        ),
+                        const SizedBox(height: 28),
+
+                        Text(
+                          "Contributing Transactions",
+                          style: textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Expenses in this category between "
+                          "${DateFormat.yMMMd().format(DateTime.parse(status!.startDate))} and "
+                          "${DateFormat.yMMMd().format(DateTime.parse(status!.endDate))}",
+                          style: textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+
+                        if (transactions.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: Center(
+                              child: Text(
+                                "No transactions have contributed to this budget yet.",
+                                style: textTheme.bodyMedium,
+                              ),
+                            ),
+                          )
+                        else
+                          ...transactions.map(
+                            (transaction) => TransactionWidget(
+                              transaction: transaction,
+                              accounts: user?.accounts ?? const [],
+                              onEdit: user == null
+                                  ? null
+                                  : (
+                                      transactionId,
+                                      accountId,
+                                      date,
+                                      description,
+                                      merchant,
+                                      amount,
+                                      type,
+                                      categoryId,
+                                    ) async {
+                                      final scaffoldMessenger =
+                                          ScaffoldMessenger.of(context);
+
+                                      try {
+                                        await HttpsMethods().updateTransaction(
+                                          transactionId,
+                                          user.id,
+                                          accountId: accountId,
+                                          date: date,
+                                          description: description,
+                                          merchant: merchant,
+                                          amount: amount,
+                                          type: type,
+                                          categoryId: categoryId,
+                                        );
+
+                                        await _refreshUser(userProvider, user);
+                                        await _loadBudgetDetails();
+
+                                        scaffoldMessenger.showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Transaction updated successfully!',
+                                            ),
+                                          ),
+                                        );
+                                      } catch (e) {
+                                        scaffoldMessenger.showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to update transaction: $e',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                              onDelete: user == null
+                                  ? null
+                                  : (transactionId) async {
+                                      final scaffoldMessenger =
+                                          ScaffoldMessenger.of(context);
+
+                                      try {
+                                        await HttpsMethods().deleteTransaction(
+                                          transactionId,
+                                          user.id,
+                                        );
+
+                                        await _refreshUser(userProvider, user);
+                                        await _loadBudgetDetails();
+
+                                        scaffoldMessenger.showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'Transaction deleted successfully!',
+                                            ),
+                                          ),
+                                        );
+                                      } catch (e) {
+                                        scaffoldMessenger.showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              'Failed to delete transaction: $e',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+          ),
+        );
+      },
     );
   }
 }
