@@ -9,8 +9,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import budgetpal.budget.BudgetService.BudgetHistoryEntry;
@@ -39,6 +42,16 @@ public class BudgetController {
                         Integer categoryId
 
         ) {
+        }
+
+        public static record UpdateBudgetRequest(
+                        Integer userId,
+                        String name,
+                        Double limitAmount,
+                        BudgetPeriod period,
+                        LocalDate startDate,
+                        LocalDate endDate,
+                        Integer categoryId) {
         }
 
         public static record BudgetResponse(
@@ -119,6 +132,61 @@ public class BudgetController {
         @GetMapping("/history/{userId}")
         public ResponseEntity<List<BudgetHistoryEntry>> getBudgetHistory(@PathVariable Integer userId) {
                 return ResponseEntity.ok(budgetService.getBudgetHistory(userId));
+        }
+
+        @PatchMapping("/{budgetId}")
+        public ResponseEntity<BudgetResponse> updateBudget(
+                        @PathVariable Integer budgetId,
+                        @RequestBody UpdateBudgetRequest request) {
+                try {
+                        Budget budget = budgetService.findById(budgetId)
+                                        .orElseThrow(() -> new IllegalArgumentException("Budget not found"));
+
+                        if (request.userId() == null || !budget.getUser().getId().equals(request.userId()))
+                                throw new IllegalArgumentException("Budget does not belong to user");
+
+                        if (request.name() != null)
+                                budget.setName(request.name());
+                        if (request.limitAmount() != null)
+                                budget.setLimitAmount(request.limitAmount());
+                        if (request.period() != null)
+                                budget.setPeriod(request.period());
+                        if (request.startDate() != null)
+                                budget.setStartDate(request.startDate());
+                        if (request.endDate() != null)
+                                budget.setEndDate(request.endDate());
+                        if (request.categoryId() != null) {
+                                Category category = categoryRepository.findById(request.categoryId())
+                                                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+
+                                budget.setCategory(category);
+                        }
+
+                        budgetService.save(budget);
+
+                        return ResponseEntity.ok(budgetService.toBudgetReponseBuilder(budget));
+                } catch (Exception e) {
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+        }
+
+        @DeleteMapping("/{budgetId}")
+        public ResponseEntity<Void> deleteBudget(
+                        @PathVariable Integer budgetId,
+                        @RequestParam Integer userId) {
+                try {
+                        Budget budget = budgetService.findById(budgetId)
+                                        .orElseThrow(() -> new IllegalArgumentException("Budget not found"));
+
+                        if (!budget.getUser().getId().equals(userId))
+                                throw new IllegalArgumentException("Budget does not belong to user");
+
+                        budgetService.delete(budget);
+
+                        return ResponseEntity.noContent().build();
+                } catch (Exception e) {
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
         }
 
 }

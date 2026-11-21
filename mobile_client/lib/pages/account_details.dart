@@ -1,5 +1,9 @@
+import 'package:budget_pal/models/account.dart';
 import 'package:budget_pal/models/transaction.dart';
+import 'package:budget_pal/models/user.dart';
 import 'package:budget_pal/util/https_methods.dart';
+import 'package:budget_pal/widgets/accounts/edit_account_dialog.dart';
+import 'package:budget_pal/widgets/common/confirm_delete_dialog.dart';
 import 'package:budget_pal/widgets/transactions/account_header_widget.dart';
 import 'package:budget_pal/widgets/transactions/transaction_widget.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +48,85 @@ class _AccountDetailsPage extends State<AccountDetailsPage> {
     }
   }
 
+  Future<User?> _refreshUser(UserProvider userProvider, User currentUser) async {
+    final updatedUser = await HttpsMethods().getUserByEmail(currentUser.email);
+    if (updatedUser != null) {
+      userProvider.setUser(updatedUser);
+    }
+    return updatedUser;
+  }
+
+  void _openEditAccountDialog(
+    BuildContext context,
+    UserProvider userProvider,
+    User user,
+    Account account,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return EditAccountDialog(
+          account: account,
+          onEdit: (name, accountNumber) async {
+            final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+            try {
+              await HttpsMethods().updateAccount(
+                account.id,
+                user.id,
+                name: name,
+                accountNumber: accountNumber,
+              );
+
+              await _refreshUser(userProvider, user);
+
+              scaffoldMessenger.showSnackBar(
+                const SnackBar(content: Text('Account updated successfully!')),
+              );
+            } catch (e) {
+              scaffoldMessenger.showSnackBar(
+                SnackBar(content: Text('Failed to update account: $e')),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _handleDeleteAccount(
+    BuildContext context,
+    UserProvider userProvider,
+    User user,
+    Account account,
+  ) async {
+    final confirmed = await showDeleteConfirmationDialog(
+      context,
+      title: 'Delete Account',
+      message:
+          'Are you sure you want to delete "${account.name}"? This cannot be undone.',
+    );
+
+    if (!confirmed || !context.mounted) return;
+
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    try {
+      await HttpsMethods().deleteAccount(account.id, user.id);
+      await _refreshUser(userProvider, user);
+
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(content: Text('Account deleted successfully!')),
+      );
+      navigator.pop();
+    } catch (e) {
+      scaffoldMessenger.showSnackBar(
+        SnackBar(content: Text('Failed to delete account: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
@@ -60,7 +143,24 @@ class _AccountDetailsPage extends State<AccountDetailsPage> {
         );
 
         return Scaffold(
-          appBar: AppBar(title: Text(account.name)),
+          appBar: AppBar(
+            title: Text(account.name),
+            actions: [
+              PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    _openEditAccountDialog(context, userProvider, user, account);
+                  } else if (value == 'delete') {
+                    _handleDeleteAccount(context, userProvider, user, account);
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(value: 'edit', child: Text('Edit Account')),
+                  PopupMenuItem(value: 'delete', child: Text('Delete Account')),
+                ],
+              ),
+            ],
+          ),
           body: SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.all(16.0),
@@ -114,12 +214,85 @@ class _AccountDetailsPage extends State<AccountDetailsPage> {
                             else
                               ...transactions!.map((transaction) {
                                 return TransactionWidget(
-                                  date: transaction.date,
-                                  description: transaction.description,
-                                  categoryId: transaction.categoryId,
-                                  amount: transaction.amount,
-                                  type: transaction.type,
-                                  merchant: transaction.merchant,
+                                  transaction: transaction,
+                                  accounts: user.accounts,
+                                  onEdit:
+                                      (
+                                        transactionId,
+                                        accountId,
+                                        date,
+                                        description,
+                                        merchant,
+                                        amount,
+                                        type,
+                                        categoryId,
+                                      ) async {
+                                        final scaffoldMessenger =
+                                            ScaffoldMessenger.of(context);
+
+                                        try {
+                                          await HttpsMethods().updateTransaction(
+                                            transactionId,
+                                            user.id,
+                                            accountId: accountId,
+                                            date: date,
+                                            description: description,
+                                            merchant: merchant,
+                                            amount: amount,
+                                            type: type,
+                                            categoryId: categoryId,
+                                          );
+
+                                          await _refreshUser(userProvider, user);
+                                          await _fetchTransactions();
+
+                                          scaffoldMessenger.showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'Transaction updated successfully!',
+                                              ),
+                                            ),
+                                          );
+                                        } catch (e) {
+                                          scaffoldMessenger.showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Failed to update transaction: $e',
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                  onDelete: (transactionId) async {
+                                    final scaffoldMessenger =
+                                        ScaffoldMessenger.of(context);
+
+                                    try {
+                                      await HttpsMethods().deleteTransaction(
+                                        transactionId,
+                                        user.id,
+                                      );
+
+                                      await _refreshUser(userProvider, user);
+                                      await _fetchTransactions();
+
+                                      scaffoldMessenger.showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Transaction deleted successfully!',
+                                          ),
+                                        ),
+                                      );
+                                    } catch (e) {
+                                      scaffoldMessenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Failed to delete transaction: $e',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
                                 );
                               }).toList(),
                           ],

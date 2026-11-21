@@ -1,33 +1,44 @@
 import 'package:budget_pal/main.dart';
+import 'package:budget_pal/models/account.dart';
+import 'package:budget_pal/models/transaction.dart';
 import 'package:budget_pal/pages/account_details.dart';
 import 'package:budget_pal/widgets/transactions/transaction_details_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+typedef TransactionEditCallback = Future<void> Function(
+  int transactionId,
+  int accountId,
+  DateTime date,
+  String description,
+  String merchant,
+  double amount,
+  String type,
+  int categoryId,
+);
+
+typedef TransactionDeleteCallback = Future<void> Function(int transactionId);
+
 class TransactionWidget extends StatelessWidget {
-  final DateTime date;
-  final String description;
-  final int categoryId;
-  final double amount;
-  final String type;
-  final String merchant;
+  final Transaction transaction;
+  final List<Account> accounts;
+  final TransactionEditCallback? onEdit;
+  final TransactionDeleteCallback? onDelete;
   final currencyFormat = NumberFormat.currency(locale: "en_US", symbol: '\$');
 
   TransactionWidget({
     super.key,
-    required this.date,
-    required this.description,
-    required this.categoryId,
-    required this.amount,
-    required this.type,
-    required this.merchant,
+    required this.transaction,
+    this.accounts = const [],
+    this.onEdit,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    String category = CategoryHelper.getCategoryName(categoryId);
-    final isExpense = type == "EXPENSE";
+    String category = CategoryHelper.getCategoryName(transaction.categoryId);
+    final isExpense = transaction.type == "EXPENSE";
     final statusColor = isExpense ? AppColors.danger : AppColors.success;
     final statusBackground = isExpense
         ? AppColors.dangerBackground
@@ -41,12 +52,10 @@ class TransactionWidget extends StatelessWidget {
             context: context,
             builder: (BuildContext context) {
               return TransactionDetailsDialog(
-                date: date,
-                description: description,
-                categoryId: categoryId,
-                amount: amount,
-                type: type,
-                merchant: merchant,
+                transaction: transaction,
+                accounts: accounts,
+                onEdit: onEdit,
+                onDelete: onDelete,
               );
             },
           );
@@ -77,10 +86,10 @@ class TransactionWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(description, style: textTheme.titleMedium),
+                    Text(transaction.description, style: textTheme.titleMedium),
                     const SizedBox(height: 4),
                     Text(
-                      DateFormat.MMMd().format(date),
+                      DateFormat.MMMd().format(transaction.date),
                       style: textTheme.bodySmall,
                     ),
                   ],
@@ -93,8 +102,8 @@ class TransactionWidget extends StatelessWidget {
                 children: [
                   Text(
                     isExpense
-                        ? "-${currencyFormat.format(amount)}"
-                        : "+${currencyFormat.format(amount)}",
+                        ? "-${currencyFormat.format(transaction.amount)}"
+                        : "+${currencyFormat.format(transaction.amount)}",
                     style: textTheme.titleMedium?.copyWith(color: statusColor),
                   ),
                   const SizedBox(height: 4),

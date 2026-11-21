@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import budgetpal.user.User;
 import budgetpal.user.UserService;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/account")
@@ -26,6 +29,13 @@ public class AccountController {
             String type,
             String accountNumber,
             double balance,
+            Integer userId) {
+
+    }
+
+    public static record UpdateAccountRequest(
+            String name,
+            String accountNumber,
             Integer userId) {
 
     }
@@ -85,6 +95,46 @@ public class AccountController {
                     .orElseThrow(() -> new IllegalArgumentException("Account not found"));
 
             return ResponseEntity.ok(accountService.toAccountResponseBuilder(account));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PatchMapping(value = "/{accountId}")
+    public ResponseEntity<AccountResponse> updateAccount(@PathVariable Integer accountId,
+            @RequestBody UpdateAccountRequest request) {
+        try {
+            Account account = accountService.findById(accountId)
+                    .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+
+            if (request.userId() == null || !account.getUser().getId().equals(request.userId()))
+                throw new IllegalArgumentException("Account does not belong to user");
+
+            if (request.name() != null)
+                account.setName(request.name());
+            if (request.accountNumber() != null)
+                account.setAccountNumber(request.accountNumber());
+
+            accountService.save(account);
+
+            return ResponseEntity.ok(accountService.toAccountResponseBuilder(account));
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping(value = "/{accountId}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable Integer accountId, @RequestParam Integer userId) {
+        try {
+            Account account = accountService.findById(accountId)
+                    .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+
+            if (!account.getUser().getId().equals(userId))
+                throw new IllegalArgumentException("Account does not belong to user");
+
+            accountService.delete(account);
+
+            return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

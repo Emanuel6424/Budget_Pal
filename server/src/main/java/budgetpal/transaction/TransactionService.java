@@ -36,6 +36,25 @@ public class TransactionService {
         return transactionRepository.save(t);
     }
 
+    @Transactional
+    public Transaction update(Transaction t) {
+        return transactionRepository.save(t);
+    }
+
+    @Transactional
+    public void delete(Transaction t) {
+        Account account = t.getAccount();
+
+        if (t.getType() == TransactionType.EXPENSE) {
+            account.setBalance(account.getBalance() + t.getAmount());
+        } else if (t.getType() == TransactionType.INCOME) {
+            account.setBalance(account.getBalance() - t.getAmount());
+        }
+
+        accountRepository.save(account);
+        transactionRepository.delete(t);
+    }
+
     public Optional<Transaction> findById(Integer id) {
         return transactionRepository.findById(id);
     }

@@ -1,0 +1,424 @@
+{
+  "info": {
+    "_postman_id": "b6c1f2a0-1f0a-4b6a-9b2e-budgetpal0001",
+    "name": "BudgetPal",
+    "description": "BudgetPal API. No JWT auth exists yet (MVP) - userId/accountId/etc. are client-supplied in request bodies/params, not token-derived. Run requests top-to-bottom within a folder; later requests rely on collection variables saved by earlier ones.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "categoryId", "value": "1" },
+    { "key": "userId", "value": "" },
+    { "key": "otherUserId", "value": "" },
+    { "key": "accountId", "value": "" },
+    { "key": "otherAccountId", "value": "" },
+    { "key": "deleteAccountId", "value": "" },
+    { "key": "transactionId", "value": "" },
+    { "key": "budgetId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "Register User A",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 201', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.test('has id', () => pm.expect(body.id).to.be.a('number'));",
+            "pm.collectionVariables.set('userId', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"Ada\",\n  \"lastName\": \"Lovelace\",\n  \"email\": \"ada.{{$randomInt}}@example.com\",\n  \"password\": \"Password123!\"\n}"},
+            "url": {"raw": "{{baseUrl}}/user/new", "host": ["{{baseUrl}}"], "path": ["user", "new"]}
+          }
+        },
+        {
+          "name": "Register User B (for ownership-denied tests)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 201', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.collectionVariables.set('otherUserId', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"firstName\": \"Bob\",\n  \"lastName\": \"Babbage\",\n  \"email\": \"bob.{{$randomInt}}@example.com\",\n  \"password\": \"Password123!\"\n}"},
+            "url": {"raw": "{{baseUrl}}/user/new", "host": ["{{baseUrl}}"], "path": ["user", "new"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "account",
+      "item": [
+        {
+          "name": "Create Account (userId)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 201', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.collectionVariables.set('accountId', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Checking\",\n  \"type\": \"CHECKING\",\n  \"accountNumber\": \"ACC-0001\",\n  \"balance\": 500.00,\n  \"userId\": {{userId}}\n}"},
+            "url": {"raw": "{{baseUrl}}/account/new", "host": ["{{baseUrl}}"], "path": ["account", "new"]}
+          }
+        },
+        {
+          "name": "Create Account (otherUserId, for ownership-denied tests)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 201', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.collectionVariables.set('otherAccountId', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Other Checking\",\n  \"type\": \"CHECKING\",\n  \"accountNumber\": \"ACC-0002\",\n  \"balance\": 100.00,\n  \"userId\": {{otherUserId}}\n}"},
+            "url": {"raw": "{{baseUrl}}/account/new", "host": ["{{baseUrl}}"], "path": ["account", "new"]}
+          }
+        },
+        {
+          "name": "Create Account to Delete (userId, no transactions)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 201', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.collectionVariables.set('deleteAccountId', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Savings To Delete\",\n  \"type\": \"SAVINGS\",\n  \"accountNumber\": \"ACC-0003\",\n  \"balance\": 0,\n  \"userId\": {{userId}}\n}"},
+            "url": {"raw": "{{baseUrl}}/account/new", "host": ["{{baseUrl}}"], "path": ["account", "new"]}
+          }
+        },
+        {
+          "name": "Update Account - success (name + accountNumber only)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('name updated', () => pm.expect(body.name).to.eql('Primary Checking'));",
+            "pm.test('accountNumber updated', () => pm.expect(body.accountNumber).to.eql('ACC-0001-NEW'));",
+            "pm.test('balance unchanged (not editable)', () => pm.expect(body.balance).to.eql(500.0));",
+            "pm.test('type unchanged (not editable)', () => pm.expect(body.type).to.eql('CHECKING'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Primary Checking\",\n  \"accountNumber\": \"ACC-0001-NEW\",\n  \"userId\": {{userId}}\n}"},
+            "url": {"raw": "{{baseUrl}}/account/{{accountId}}", "host": ["{{baseUrl}}"], "path": ["account", "{{accountId}}"]}
+          }
+        },
+        {
+          "name": "Update Account - invalid body (missing userId) -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"No User Provided\"\n}"},
+            "url": {"raw": "{{baseUrl}}/account/{{accountId}}", "host": ["{{baseUrl}}"], "path": ["account", "{{accountId}}"]}
+          }
+        },
+        {
+          "name": "Update Account - not found -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Ghost\",\n  \"userId\": {{userId}}\n}"},
+            "url": {"raw": "{{baseUrl}}/account/999999", "host": ["{{baseUrl}}"], "path": ["account", "999999"]}
+          }
+        },
+        {
+          "name": "Update Account - another user's account -> denied (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400 (denied)', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Hijacked\",\n  \"userId\": {{userId}}\n}"},
+            "url": {"raw": "{{baseUrl}}/account/{{otherAccountId}}", "host": ["{{baseUrl}}"], "path": ["account", "{{otherAccountId}}"]}
+          }
+        },
+        {
+          "name": "Delete Account - another user's account -> denied (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400 (denied)', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/account/{{otherAccountId}}?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["account", "{{otherAccountId}}"], "query": [{"key": "userId", "value": "{{userId}}"}]}
+          }
+        },
+        {
+          "name": "Delete Account - not found -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/account/999999?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["account", "999999"], "query": [{"key": "userId", "value": "{{userId}}"}]}
+          }
+        },
+        {
+          "name": "Delete Account - success",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 204', () => pm.response.to.have.status(204));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/account/{{deleteAccountId}}?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["account", "{{deleteAccountId}}"], "query": [{"key": "userId", "value": "{{userId}}"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "transaction",
+      "item": [
+        {
+          "name": "Create Transaction (EXPENSE, 50.00)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 201', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.collectionVariables.set('transactionId', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": {{userId}},\n  \"accountId\": {{accountId}},\n  \"date\": \"2026-11-01\",\n  \"description\": \"Groceries\",\n  \"merchant\": \"Trader Joes\",\n  \"amount\": 50.00,\n  \"type\": \"EXPENSE\",\n  \"categoryId\": {{categoryId}}\n}"},
+            "url": {"raw": "{{baseUrl}}/transaction/new", "host": ["{{baseUrl}}"], "path": ["transaction", "new"]}
+          }
+        },
+        {
+          "name": "Get Account Balance (sanity check before edit)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('balance reflects the 50.00 expense', () => pm.expect(body.balance).to.eql(450.0));",
+            "pm.collectionVariables.set('balanceBeforeEdit', body.balance);"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/account/get/account/{{accountId}}", "host": ["{{baseUrl}}"], "path": ["account", "get", "account", "{{accountId}}"]}
+          }
+        },
+        {
+          "name": "Update Transaction - success, amount change does NOT touch balance",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('amount updated', () => pm.expect(body.amount).to.eql(999.00));",
+            "pm.test('description updated', () => pm.expect(body.description).to.eql('Groceries (corrected)'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": {{userId}},\n  \"description\": \"Groceries (corrected)\",\n  \"amount\": 999.00\n}"},
+            "url": {"raw": "{{baseUrl}}/transaction/{{transactionId}}", "host": ["{{baseUrl}}"], "path": ["transaction", "{{transactionId}}"]}
+          }
+        },
+        {
+          "name": "Get Account Balance (confirm edit did not change balance)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "const before = pm.collectionVariables.get('balanceBeforeEdit');",
+            "pm.test('balance unchanged by the transaction edit', () => pm.expect(body.balance).to.eql(before));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/account/get/account/{{accountId}}", "host": ["{{baseUrl}}"], "path": ["account", "get", "account", "{{accountId}}"]}
+          }
+        },
+        {
+          "name": "Update Transaction - invalid body (missing userId) -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"description\": \"No user provided\"\n}"},
+            "url": {"raw": "{{baseUrl}}/transaction/{{transactionId}}", "host": ["{{baseUrl}}"], "path": ["transaction", "{{transactionId}}"]}
+          }
+        },
+        {
+          "name": "Update Transaction - not found -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": {{userId}},\n  \"description\": \"Ghost\"\n}"},
+            "url": {"raw": "{{baseUrl}}/transaction/999999", "host": ["{{baseUrl}}"], "path": ["transaction", "999999"]}
+          }
+        },
+        {
+          "name": "Update Transaction - another user -> denied (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400 (denied)', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": {{otherUserId}},\n  \"description\": \"Hijacked\"\n}"},
+            "url": {"raw": "{{baseUrl}}/transaction/{{transactionId}}", "host": ["{{baseUrl}}"], "path": ["transaction", "{{transactionId}}"]}
+          }
+        },
+        {
+          "name": "Delete Transaction - another user -> denied (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400 (denied)', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/transaction/{{transactionId}}?userId={{otherUserId}}", "host": ["{{baseUrl}}"], "path": ["transaction", "{{transactionId}}"], "query": [{"key": "userId", "value": "{{otherUserId}}"}]}
+          }
+        },
+        {
+          "name": "Delete Transaction - not found -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/transaction/999999?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["transaction", "999999"], "query": [{"key": "userId", "value": "{{userId}}"}]}
+          }
+        },
+        {
+          "name": "Delete Transaction - success, reverses the balance effect",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 204', () => pm.response.to.have.status(204));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/transaction/{{transactionId}}?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["transaction", "{{transactionId}}"], "query": [{"key": "userId", "value": "{{userId}}"}]}
+          }
+        },
+        {
+          "name": "Get Account Balance (confirm delete added the 999.00 expense back)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "const before = pm.collectionVariables.get('balanceBeforeEdit');",
+            "pm.test('balance increased by 999.00 (expense reversed)', () => pm.expect(body.balance).to.eql(before + 999.0));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/account/get/account/{{accountId}}", "host": ["{{baseUrl}}"], "path": ["account", "get", "account", "{{accountId}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "budget",
+      "item": [
+        {
+          "name": "Create Budget",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 201', () => pm.response.to.have.status(201));",
+            "const body = pm.response.json();",
+            "pm.collectionVariables.set('budgetId', body.id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Groceries Budget\",\n  \"limitAmount\": 300.00,\n  \"period\": \"MONTHLY\",\n  \"startDate\": \"2026-11-01\",\n  \"endDate\": \"2026-11-30\",\n  \"userId\": {{userId}},\n  \"categoryId\": {{categoryId}}\n}"},
+            "url": {"raw": "{{baseUrl}}/budget/new", "host": ["{{baseUrl}}"], "path": ["budget", "new"]}
+          }
+        },
+        {
+          "name": "Update Budget - success",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 200', () => pm.response.to.have.status(200));",
+            "const body = pm.response.json();",
+            "pm.test('name updated', () => pm.expect(body.name).to.eql('Groceries Budget (revised)'));",
+            "pm.test('limitAmount updated', () => pm.expect(body.limitAmount).to.eql(350.0));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": {{userId}},\n  \"name\": \"Groceries Budget (revised)\",\n  \"limitAmount\": 350.00\n}"},
+            "url": {"raw": "{{baseUrl}}/budget/{{budgetId}}", "host": ["{{baseUrl}}"], "path": ["budget", "{{budgetId}}"]}
+          }
+        },
+        {
+          "name": "Update Budget - invalid body (missing userId) -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"No user provided\"\n}"},
+            "url": {"raw": "{{baseUrl}}/budget/{{budgetId}}", "host": ["{{baseUrl}}"], "path": ["budget", "{{budgetId}}"]}
+          }
+        },
+        {
+          "name": "Update Budget - not found -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": {{userId}},\n  \"name\": \"Ghost\"\n}"},
+            "url": {"raw": "{{baseUrl}}/budget/999999", "host": ["{{baseUrl}}"], "path": ["budget", "999999"]}
+          }
+        },
+        {
+          "name": "Update Budget - another user -> denied (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400 (denied)', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"userId\": {{otherUserId}},\n  \"name\": \"Hijacked\"\n}"},
+            "url": {"raw": "{{baseUrl}}/budget/{{budgetId}}", "host": ["{{baseUrl}}"], "path": ["budget", "{{budgetId}}"]}
+          }
+        },
+        {
+          "name": "Delete Budget - another user -> denied (400)",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400 (denied)', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/budget/{{budgetId}}?userId={{otherUserId}}", "host": ["{{baseUrl}}"], "path": ["budget", "{{budgetId}}"], "query": [{"key": "userId", "value": "{{otherUserId}}"}]}
+          }
+        },
+        {
+          "name": "Delete Budget - not found -> 400",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/budget/999999?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["budget", "999999"], "query": [{"key": "userId", "value": "{{userId}}"}]}
+          }
+        },
+        {
+          "name": "Delete Budget - success",
+          "event": [{"listen": "test", "script": {"type": "text/javascript", "exec": [
+            "pm.test('status is 204', () => pm.response.to.have.status(204));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "url": {"raw": "{{baseUrl}}/budget/{{budgetId}}?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["budget", "{{budgetId}}"], "query": [{"key": "userId", "value": "{{userId}}"}]}
+          }
+        }
+      ]
+    }
+  ]
+}
