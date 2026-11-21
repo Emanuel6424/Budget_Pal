@@ -26,6 +26,7 @@ import budgetpal.notification.Notification;
 import budgetpal.notification.NotificationRepository;
 import budgetpal.notification.NotificationService;
 import budgetpal.transaction.TransactionRepository;
+import budgetpal.transaction.TransactionService;
 import budgetpal.user.User;
 import budgetpal.user.UserRepository;
 
@@ -38,6 +39,8 @@ class BudgetServiceTest {
     private UserRepository userRepository;
     @Mock
     private TransactionRepository transactionRepository;
+    @Mock
+    private TransactionService transactionService;
     // Real NotificationService backed by a mocked repository, rather than mocking
     // NotificationService itself - it's a concrete class, and this also exercises
     // the real underspend/no-duplicate logic end to end.
@@ -53,7 +56,7 @@ class BudgetServiceTest {
     void setUp() {
         notificationService = new NotificationService(notificationRepository);
         budgetService = new BudgetService(budgetRepository, userRepository, transactionRepository,
-                notificationService);
+                transactionService, notificationService);
 
         user = new User();
         user.setId(1);

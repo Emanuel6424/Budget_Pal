@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import budgetpal.budget.BudgetController.BudgetResponse;
 import budgetpal.notification.NotificationService;
+import budgetpal.transaction.TransactionController.TransactionResponse;
 import budgetpal.transaction.TransactionRepository;
+import budgetpal.transaction.TransactionService;
 import budgetpal.transaction.TransactionType;
 import budgetpal.user.UserRepository;
 import budgetpal.transaction.Transaction;
@@ -19,12 +21,15 @@ import budgetpal.transaction.Transaction;
 public class BudgetService {
     private final BudgetRepository budgetRepository;
     private final TransactionRepository transactionRepository;
+    private final TransactionService transactionService;
     private final NotificationService notificationService;
 
     public BudgetService(BudgetRepository budgetRepository, UserRepository userRepository,
-            TransactionRepository transactionRepsitory, NotificationService notificationService) {
+            TransactionRepository transactionRepsitory, TransactionService transactionService,
+            NotificationService notificationService) {
         this.budgetRepository = budgetRepository;
         this.transactionRepository = transactionRepsitory;
+        this.transactionService = transactionService;
         this.notificationService = notificationService;
     }
 
@@ -40,14 +45,29 @@ public class BudgetService {
         return budgetRepository.findById(id);
     }
 
-    public BigDecimal getCurrentSpending(Budget budget) {
-        // Find all transactions for this cugdte's cateogir within the date range
+    // Transactions in this budget's category and date range that count
+    // towards its spending (expenses only - matches getCurrentSpending).
+    private List<Transaction> getContributingTransactions(Budget budget) {
         List<Transaction> relevantTransactions = transactionRepository.findByUserIdAndCategoryIdAndDateBetween(
                 budget.getUser().getId(), budget.getCategory().getId(), budget.getStartDate(), budget.getEndDate());
 
-        return relevantTransactions.stream().filter(t -> t.getType() == TransactionType.EXPENSE)
+        return relevantTransactions.stream().filter(t -> t.getType() == TransactionType.EXPENSE).toList();
+    }
+
+    public BigDecimal getCurrentSpending(Budget budget) {
+        return getContributingTransactions(budget).stream()
                 .map(t -> BigDecimal.valueOf(t.getAmount()))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public List<TransactionResponse> getBudgetTransactions(Integer budgetId) {
+        Budget budget = findById(budgetId)
+                .orElseThrow(() -> new IllegalArgumentException("Budget not found"));
+
+        return getContributingTransactions(budget).stream()
+                .sorted(Comparator.comparing(Transaction::getDate).reversed())
+                .map(transactionService::toTransactionResponseBuilder)
+                .toList();
     }
 
     public BudgetStatus getBudgetStatus(Integer budgetId) {

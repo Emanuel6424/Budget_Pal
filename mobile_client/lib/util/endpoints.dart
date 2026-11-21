@@ -43,6 +43,10 @@ class Endpoints {
     return '${getBaseUrl()}/budget/$budgetId/status';
   }
 
+  static String getBudgetTransactionsUrl(int budgetId) {
+    return '${getBaseUrl()}/budget/$budgetId/transactions';
+  }
+
   static String getRecentTransactionsUrl(int userId) {
     return '${getBaseUrl()}/transaction/recent/$userId';
   }

@@ -17,6 +17,7 @@ import budgetpal.budget.BudgetService.BudgetHistoryEntry;
 import budgetpal.budget.BudgetService.BudgetStatus;
 import budgetpal.category.Category;
 import budgetpal.category.CategoryRepository;
+import budgetpal.transaction.TransactionController.TransactionResponse;
 import budgetpal.user.User;
 import budgetpal.user.UserService;
 
@@ -97,6 +98,16 @@ public class BudgetController {
                 try {
                         BudgetStatus status = budgetService.getBudgetStatus(budgetId);
                         return ResponseEntity.ok(status);
+                } catch (IllegalArgumentException e) {
+                        return ResponseEntity.notFound().build();
+                }
+        }
+
+        @GetMapping("/{budgetId}/transactions")
+        public ResponseEntity<List<TransactionResponse>> getBudgetTransactions(@PathVariable Integer budgetId) {
+                try {
+                        List<TransactionResponse> transactions = budgetService.getBudgetTransactions(budgetId);
+                        return ResponseEntity.ok(transactions);
                 } catch (IllegalArgumentException e) {
                         return ResponseEntity.notFound().build();
                 }

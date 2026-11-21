@@ -207,6 +207,30 @@ class HttpsMethods {
     }
   }
 
+  Future<List<Transaction>> getBudgetTransactions(int budgetId) async {
+    try {
+      var url = Uri.parse(Endpoints.getBudgetTransactionsUrl(budgetId));
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedTransactions = jsonDecode(
+          utf8.decode(response.bodyBytes),
+        );
+
+        return fetchedTransactions
+            .map((json) => Transaction.fromJson(json))
+            .toList();
+      } else {
+        throw Exception(
+          "Failed to fetch budget transactions: ${response.statusCode}",
+        );
+      }
+    } catch (e) {
+      print("Error fetching budget transactions: $e");
+      return [];
+    }
+  }
+
   Future<List<Transaction>> getRecentTransactions(int userId) async {
     // Type it properly
     try {
