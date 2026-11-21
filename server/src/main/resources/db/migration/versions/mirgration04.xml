@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="2026-11-21-00-00" author="Emanuel Sanchez">
+
+        <createTable tableName="notifications">
+            <column name="id" type="INTEGER" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="INTEGER">
+                <constraints nullable="false" references="users(id)" foreignKeyName="FK_notifications_users"/>
+            </column>
+            <column name="budget_id" type="INTEGER">
+                <constraints nullable="false" references="budgets(id)" foreignKeyName="FK_notifications_budgets"/>
+            </column>
+            <column name="type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(255)"/>
+            <column name="body" type="varchar(1000)"/>
+            <column name="read_at" type="Timestamp"/>
+            <column name="created_at" type="Timestamp"/>
+        </createTable>
+
+        <addUniqueConstraint tableName="notifications"
+            columnNames="budget_id, type"
+            constraintName="UQ_notifications_budget_type"/>
+
+    </changeSet>
+</databaseChangeLog>

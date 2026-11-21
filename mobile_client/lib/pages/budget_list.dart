@@ -1,5 +1,7 @@
 // pages/budgets_list.dart
+import 'package:budget_pal/models/notification.dart';
 import 'package:budget_pal/providers/user_provider.dart';
+import 'package:budget_pal/services/notification_service.dart';
 import 'package:budget_pal/util/https_methods.dart';
 import 'package:budget_pal/widgets/budgets/add_budget_dialog.dart'; // Add this import
 import 'package:budget_pal/widgets/budgets/budget_widget.dart';
@@ -14,6 +16,40 @@ class BudgetListPage extends StatefulWidget {
 }
 
 class _BudgetListPageState extends State<BudgetListPage> {
+  final NotificationService _notificationService = NotificationService();
+  List<BudgetNotification> _underspentNotifications = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadNotifications());
+  }
+
+  Future<void> _loadNotifications() async {
+    final user = context.read<UserProvider>().user;
+    if (user == null) return;
+
+    final notifications = await _notificationService.getNotifications(user.id);
+    final unreadUnderspent = notifications
+        .where((n) => n.type == 'BUDGET_UNDERSPENT' && n.isUnread)
+        .toList();
+
+    if (!mounted) return;
+    setState(() {
+      _underspentNotifications = unreadUnderspent;
+    });
+  }
+
+  Future<void> _dismissNotification(BudgetNotification notification) async {
+    final user = context.read<UserProvider>().user;
+    setState(() {
+      _underspentNotifications.removeWhere((n) => n.id == notification.id);
+    });
+    if (user != null) {
+      await _notificationService.markRead(notification.id, user.id);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
@@ -137,6 +173,37 @@ class _BudgetListPageState extends State<BudgetListPage> {
                       ],
                     ),
                     SizedBox(height: 24),
+
+                    ..._underspentNotifications.map(
+                      (notification) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Dismissible(
+                          key: ValueKey('notification-${notification.id}'),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (_) => _dismissNotification(notification),
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.green[100],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(Icons.close),
+                          ),
+                          child: Card(
+                            color: Colors.green[50],
+                            child: ListTile(
+                              leading: const Icon(
+                                Icons.savings,
+                                color: Colors.green,
+                              ),
+                              title: Text(notification.title),
+                              subtitle: Text(notification.body),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
 
                     if (user.budgets.isEmpty)
                       Center(
