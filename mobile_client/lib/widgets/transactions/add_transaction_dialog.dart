@@ -148,7 +148,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(
-                  labelText: 'Description',
+                  labelText: 'Item/Title',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
